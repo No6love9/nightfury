@@ -1,0 +1,274 @@
+Analytics and Tracking
+View Global Trends
+Cloudflare InsightsCloudflare Insights
+Cloudflare Insights Usage Statistics · Download List of All Websites using Cloudflare Insights
+
+Visitor analytics and threat monitoring.
+
+Application Performance · Audience Measurement
+
+Global Site TagGlobal Site Tag
+Global Site Tag Usage Statistics · Download List of All Websites using Global Site Tag
+
+Google's primary tag for Google Measurement/Conversion Tracking, Adwords and DoubleClick.
+
+Google AnalyticsGoogle Analytics
+Google Analytics Usage Statistics · Download List of All Websites using Google Analytics
+
+Google Analytics offers a host of compelling features and benefits for everyone from senior executives and advertising and marketing professionals to site owners and content developers.
+
+Application Performance · Audience Measurement · Visitor Count Tracking
+
+Google Analytics 4Google Analytics 4
+Google Analytics 4 Usage Statistics · Download List of All Websites using Google Analytics 4
+
+Google Analytics 4 formerly known as App + Web is a new version of Google Analytics that was released in October 2020.
+
+Cloudflare Web AnalyticsCloudflare Web Analytics
+Cloudflare Web Analytics Usage Statistics · Download List of All Websites using Cloudflare Web Analytics
+
+Privacy-first web analytics from Cloudflare.
+
+Audience Measurement
+
+Widgets
+View Global Trends
+IntercomIntercom
+Intercom Usage Statistics · Download List of All Websites using Intercom
+
+Intercom is a customer relationship management and messaging tool for web app owners
+
+Feedback Forms and Surveys · Ticketing System
+
+reCAPTCHAreCAPTCHA
+reCAPTCHA Usage Statistics · Download List of All Websites using reCAPTCHA
+
+Anti-bot CAPTCHA widget from Google.
+
+CAPTCHA
+
+Google Tag ManagerGoogle Tag Manager
+Google Tag Manager Usage Statistics · Download List of All Websites using Google Tag Manager
+
+Tag management that lets you add and update website tags without changes to underlying website code.
+
+Tag Management
+
+US Privacy User Signal MechanismUS Privacy User Signal Mechanism
+US Privacy User Signal Mechanism Usage Statistics · Download List of All Websites using US Privacy User Signal Mechanism
+
+The US Privacy API (USP API) is a lightweight API used to communicate signals represented in the US Privacy String.
+
+Privacy Compliance
+
+CrUX DatasetCrUX Dataset
+CrUX Dataset Usage Statistics · Download List of All Websites using CrUX Dataset
+
+CrUX is a data collection system that gathers information about how real users interact with websites. This website is included in the user experiences data gathered from Google Chrome and thus considered sufficiently popular on the Internet.
+
+CrUX Top 1mCrUX Top 1m
+CrUX Top 1m Usage Statistics · Download List of All Websites using CrUX Top 1m
+
+Relative measure of site popularity within the CrUX dataset, measured by the total number of navigations on the origin. This site is in the top 1 million.
+
+Cloudflare RadarCloudflare Radar
+Cloudflare Radar Usage Statistics · Download List of All Websites using Cloudflare Radar
+
+The website appears on the Cloudflare Radar Top 1m sites list
+
+Cloudflare Radar Top 500kCloudflare Radar Top 500k
+Cloudflare Radar Top 500k Usage Statistics · Download List of All Websites using Cloudflare Radar Top 500k
+
+The website appears in the Cloudflare Radar Top 500,000.
+
+Google Font APIGoogle Font API
+Google Font API Usage Statistics · Download List of All Websites using Google Font API
+
+The Google Font API helps you add web fonts to any web page.
+
+Fonts
+
+Cloudflare TurnstileCloudflare Turnstile
+Cloudflare Turnstile Usage Statistics · Download List of All Websites using Cloudflare Turnstile
+
+Smart CAPTCHA alternative.
+
+CAPTCHA
+
+Frameworks
+View Global Trends
+Headless UIHeadless UI
+Headless UI Usage Statistics · Download List of All Websites using Headless UI
+
+Completely unstyled, fully accessible UI components for Vue and React.
+
+Mobile
+View Global Trends
+Viewport MetaViewport Meta
+Viewport Meta Usage Statistics · Download List of All Websites using Viewport Meta
+
+This page uses the viewport meta tag which means the content may be optimized for mobile content.
+
+IPhone / Mobile CompatibleIPhone / Mobile Compatible
+IPhone / Mobile Compatible Usage Statistics · Download List of All Websites using IPhone / Mobile Compatible
+
+The website contains code that allows the page to support IPhone / Mobile Content.
+
+Mobile Non Scaleable ContentMobile Non Scaleable Content
+Mobile Non Scaleable Content Usage Statistics · Download List of All Websites using Mobile Non Scaleable Content
+
+This content is formatted for mobile devices, it does not allow the content to be scaled.
+
+Apple Mobile Web Clips IconApple Mobile Web Clips Icon
+Apple Mobile Web Clips Icon Usage Statistics · Download List of All Websites using Apple Mobile Web Clips Icon
+
+This page contains an icon for iPhone, iPad and iTouch devices.
+
+Apple Mobile Web App CapableApple Mobile Web App Capable
+Apple Mobile Web App Capable Usage Statistics · Download List of All Websites using Apple Mobile Web App Capable
+
+Launches a web application for Safari on iOS in full-screen mode to look like a native application.
+
+Apple Mobile Web App Status Bar StyleApple Mobile Web App Status Bar Style
+Apple Mobile Web App Status Bar Style Usage Statistics · Download List of All Websites using Apple Mobile Web App Status Bar Style
+
+Minimizes the status bar that is displayed at the top of the screen on iOS.
+
+Content Delivery Network
+View Global Trends
+CloudflareCloudflare
+Cloudflare Usage Statistics · Download List of All Websites using Cloudflare
+
+Automatically optimizes the delivery of your web pages so your visitors get the fastest page load times and best performance.
+
+GStatic Google Static ContentGStatic Google Static Content
+GStatic Google Static Content Usage Statistics · Download List of All Websites using GStatic Google Static Content
+
+Google has off-loaded static content (Javascript/Images/CSS) to a different domain name in an effort to reduce bandwidth usage and increase network performance for the end user.
+
+UNPKGUNPKG
+UNPKG Usage Statistics · Download List of All Websites using UNPKG
+
+unpkg is a fast, global content delivery network for everything on npm.
+
+JavaScript Libraries and Functions
+View Global Trends
+Intersection ObserverIntersection Observer
+Intersection Observer Usage Statistics · Download List of All Websites using Intersection Observer
+
+API that can be used to understand the visibility and position of DOM elements relative to a containing element or to the top-level viewport.
+
+GSAPGSAP
+GSAP Usage Statistics · Download List of All Websites using GSAP
+
+GSAP is a suite of tools for scripted, high-performance HTML5 animations that work in all major browsers from GreenSock.
+
+Animation
+
+lodashlodash
+lodash Usage Statistics · Download List of All Websites using lodash
+
+Lo-dash is an alternative and a drop-in replacement for Underscore.js.
+
+JavaScript Library
+
+core-jscore-js
+core-js Usage Statistics · Download List of All Websites using core-js
+
+Modular standard library for JavaScript.
+
+Framework
+
+JavaScript ModulesJavaScript Modules
+JavaScript Modules Usage Statistics · Download List of All Websites using JavaScript Modules
+
+Modern browsers now support native module functionality, optimizing loading and efficiency. Import and export statements are key for using native JavaScript modules.
+
+VueVue
+Vue Usage Statistics · Download List of All Websites using Vue
+
+vue.js a JavaScript MVVM framework.
+
+JavaScript Library
+
+Vue InstantiatedVue Instantiated
+Vue Instantiated Usage Statistics · Download List of All Websites using Vue Instantiated
+
+VueJS instantiated - we found Vue "loaded" into memory on this page.
+
+Verified Link
+View Global Trends
+TwitterTwitter
+Twitter Usage Statistics · Download List of All Websites using Twitter
+
+The website mentions twitter.com in some form.
+
+XX
+X Usage Statistics · Download List of All Websites using X
+
+X is the new name for Twitter.
+
+Advertising
+View Global Trends
+DoubleClick.NetDoubleClick.Net
+DoubleClick.Net Usage Statistics · Download List of All Websites using DoubleClick.Net
+
+DoubleClick enables agencies, marketers and publishers to work together successfully and profit from their digital marketing investments. Owned by Google and now referred to as DoubleClick Digital Marketing or Google Enterprise Advertising.
+
+Email Hosting Providers
+View Global Trends
+Zoho MailZoho Mail
+Zoho Mail Usage Statistics · Download List of All Websites using Zoho Mail
+
+Business email hosting from Zoho.
+
+Business Email Hosting
+
+SPFSPF
+SPF Usage Statistics · Download List of All Websites using SPF
+
+The Sender Policy Framework is an open standard specifying a technical method to prevent sender address forgery.
+
+SSL Certificates
+View Global Trends
+SSL by DefaultSSL by Default
+SSL by Default Usage Statistics · Download List of All Websites using SSL by Default
+
+The website redirects traffic to an HTTPS/SSL version by default.
+
+Web Hosting Providers
+View Global Trends
+Cloudflare HostingCloudflare Hosting
+Cloudflare Hosting Usage Statistics · Download List of All Websites using Cloudflare Hosting
+
+Supercharged web hosting service.
+
+US hosting · Cloud Hosting · Cloud PaaS
+
+Name Server
+View Global Trends
+Cloudflare DNSCloudflare DNS
+Cloudflare DNS Usage Statistics · Download List of All Websites using Cloudflare DNS
+
+DNS services provided by Cloudflare.
+
+Operating Systems and Servers
+View Global Trends
+IPv6IPv6
+IPv6 Usage Statistics · Download List of All Websites using IPv6
+
+The website has an IPv6 record.
+
+Verified CDN
+View Global Trends
+Cloudflare CDNCloudflare CDN
+Cloudflare CDN Usage Statistics · Download List of All Websites using Cloudflare CDN
+
+Content owned by this site hosted on the Cloudflare CDN.
+
+Content Delivery Network
+View Global Trends
+Content Delivery NetworkContent Delivery Network
+Content Delivery Network Usage Statistics · Download List of All Websites using Content Delivery Network
+
+This page contains links that give the impression that some of the site contents are stored on a content delivery network.
