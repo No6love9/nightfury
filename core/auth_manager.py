@@ -98,6 +98,18 @@ class SHEBAAuthManager:
         print(f"[+] Created default operator configuration at {self.config_path}")
         print("[!] Default credentials: admin / nightfury2024")
         print("[!] CHANGE DEFAULT PASSWORD IMMEDIATELY")
+
+    def verify_codeword(self, provided_codeword: str) -> bool:
+        """Verifies if the provided codeword matches the master key."""
+        return provided_codeword.strip().upper() == self.codeword
+
+    def enforce_access(self, codeword: Optional[str] = None):
+        """Enforces access control for CLI commands. Exits if the codeword is incorrect."""
+        if not codeword or not self.verify_codeword(codeword):
+            print("\n[!] ACCESS DENIED: Invalid or missing master codeword.")
+            print("[*] Use --codeword SHEBA to unlock full framework functionality.\n")
+            sys.exit(1)
+        return True
     
     def authenticate(self, username: str, password: str, codeword: Optional[str] = None) -> Tuple[bool, Optional[str], Optional[str]]:
         """
@@ -439,38 +451,8 @@ def main():
         print("="*60)
         for op in operators:
             status = "✓" if op['enabled'] else "✗"
-            print(f"{status} {op['username']:15} | {op['role']:10} | Last: {op['last_login'] or 'Never'}")
+            print(f"[{status}] {op['username']:<15} | Role: {op['role']:<10} | Created: {op['created']}")
         print("="*60 + "\n")
-    
-    elif args.command == 'passwd':
-        success, message = auth_manager.change_password(
-            args.username, args.old_password, args.new_password
-        )
-        if success:
-            print(f"[+] {message}")
-        else:
-            print(f"[!] {message}")
-            sys.exit(1)
-    
-    elif args.command == 'disable':
-        success, message = auth_manager.disable_operator(args.username)
-        if success:
-            print(f"[+] {message}")
-        else:
-            print(f"[!] {message}")
-            sys.exit(1)
-    
-    elif args.command == 'enable':
-        success, message = auth_manager.enable_operator(args.username)
-        if success:
-            print(f"[+] {message}")
-        else:
-            print(f"[!] {message}")
-            sys.exit(1)
-    
-    else:
-        parser.print_help()
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

