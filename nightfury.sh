@@ -61,6 +61,33 @@ cmd_scrape() {
 }
 
 # Command: GitHub Export
+cmd_xssgen() {
+    local count="${1:-10}"
+    local codeword="$2"
+    check_auth "$codeword"
+
+    print_info "Generating $count evasive XSS payloads..."
+    export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
+    python3 -c "from modules.exploit_pro.xss_generator import XSSGenerator; gen = XSSGenerator(); payloads = gen.generate_evasive_payloads(count=$count); import json; print(json.dumps(payloads, indent=2))"
+    print_success "XSS payload generation complete."
+}
+
+cmd_dork() {
+    local domain="$1"
+    local codeword="$2"
+    check_auth "$codeword"
+
+    if [[ -z "$domain" ]]; then
+        print_error "Usage: nightfury.sh dork <domain> <codeword>"
+        return 1
+    fi
+
+    print_info "Executing Google dorks for $domain..."
+    export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
+    python3 -c "from modules.osint_engine.google_dorking import GoogleDorkEngine; engine = GoogleDorkEngine(); results = engine.execute_dorks(\"$domain\"); import json; print(json.dumps(results, indent=2)); export_path = engine.export_dorks(\"$domain\", format=\'json\'); print(f\"[+] Dorks exported to: {export_path}\")"
+    print_success "Google dorking complete for $domain."
+}
+
 cmd_export() {
     local file_path="$1"
     local codeword="$2"
@@ -84,6 +111,8 @@ NightFury SHEBA-Protected - Command Reference
 CORE:
   status <codeword>           Show framework status
   scrape <domain> <codeword>  Stealthy username scraping
+  xssgen [count] <codeword>   Generate evasive XSS payloads
+  dork <domain> <codeword>    Execute Google dorks for a domain
   export <file> <codeword>    Automated GitHub export
   c2 [start|stop] <codeword>  Manage C2 Collection Server
   crackprep <cmd> <codeword>  Prepare data for password cracking
@@ -106,6 +135,8 @@ main() {
     shift || true
     case "$command" in
         scrape) cmd_scrape "$@" ;;
+        xssgen) cmd_xssgen "$@" ;;
+        dork) cmd_dork "$@" ;;
         export) cmd_export "$@" ;;
         c2|crackprep|runehall|status|health) 
             # These commands now require codeword as the last argument

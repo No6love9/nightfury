@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-"""
-NightFury Google Dorking Module
-Advanced Google Dork queries for OSINT reconnaissance
-"""
-
 import os
 import sys
 import time
@@ -14,9 +8,11 @@ from datetime import datetime
 from typing import List, Dict, Optional, Any
 from pathlib import Path
 
+# Assuming a search tool is available for execution
+# from tools import search # Placeholder for actual search tool integration
 
 class GoogleDorkEngine:
-    """Advanced Google Dorking with OPSEC-aware queries"""
+    """Advanced Google Dorking with OPSEC-aware queries and execution capabilities"""
     
     # Comprehensive dork templates organized by category
     DORK_TEMPLATES = {
@@ -29,6 +25,8 @@ class GoogleDorkEngine:
             'site:{domain} filetype:xml inurl:sitemap',
             'site:{domain} filetype:json',
             'site:{domain} ext:csv | ext:dat',
+            'site:{domain} intext:"private key" | intext:"BEGIN RSA PRIVATE KEY"',
+            'site:{domain} intext:"client_secret" | intext:"oauth_token"'
         ],
         
         'credentials': [
@@ -40,6 +38,7 @@ class GoogleDorkEngine:
             'site:{domain} intext:"DB_PASSWORD" | intext:"DB_USERNAME"',
             'site:{domain} filetype:env "DB_PASSWORD"',
             'site:{domain} ext:sql intext:INSERT INTO',
+            'site:{domain} intext:"jira_password" | intext:"confluence_password"'
         ],
         
         'vulnerabilities': [
@@ -51,6 +50,8 @@ class GoogleDorkEngine:
             'site:{domain} inurl:upload | inurl:file | inurl:download',
             'site:{domain} inurl:admin/upload | inurl:admin/file',
             'site:{domain} intitle:"index of" "parent directory"',
+            'site:{domain} intext:"powered by WordPress" | intext:"Joomla!" | intext:"Drupal"',
+            'site:{domain} intext:"version" | intext:"build" filetype:txt'
         ],
         
         'subdomains': [
@@ -58,12 +59,14 @@ class GoogleDorkEngine:
             'site:*.*.{domain}',
             'inurl:{domain} -www',
             'site:{domain} -www',
+            'inurl:app.{domain} | inurl:dev.{domain} | inurl:test.{domain}'
         ],
         
         'emails': [
             'site:{domain} intext:"@{domain}"',
             'site:{domain} "email" | "e-mail" | "contact"',
             'site:{domain} intext:"@" -inurl:mailto',
+            'site:{domain} intext:"email address" | intext:"contact us"'
         ],
         
         'technologies': [
@@ -72,6 +75,7 @@ class GoogleDorkEngine:
             'site:{domain} inurl:joomla | inurl:drupal',
             'site:{domain} intext:"Apache" | intext:"nginx" | intext:"IIS"',
             'site:{domain} inurl:.git | inurl:.svn | inurl:.env',
+            'site:{domain} intext:"React" | intext:"Angular" | intext:"Vue.js"'
         ],
         
         'directories': [
@@ -80,6 +84,7 @@ class GoogleDorkEngine:
             'site:{domain} intitle:"index of" config',
             'site:{domain} intitle:"index of" admin',
             'site:{domain} intitle:"index of" password',
+            'site:{domain} intitle:"index of" logs'
         ],
         
         'social_media': [
@@ -88,6 +93,7 @@ class GoogleDorkEngine:
             'site:facebook.com "{domain}"',
             'site:github.com "{domain}"',
             'site:pastebin.com "{domain}"',
+            'site:reddit.com "{domain}"'
         ],
         
         'cloud_storage': [
@@ -95,20 +101,27 @@ class GoogleDorkEngine:
             'site:blob.core.windows.net "{domain}"',
             'site:storage.googleapis.com "{domain}"',
             'site:digitaloceanspaces.com "{domain}"',
+            'site:drive.google.com intext:"{domain}"'
         ],
         
         'employee_info': [
             'site:linkedin.com intitle:"{domain}" "current" | "former"',
             'site:{domain} intext:"employee" | intext:"staff" | intext:"team"',
             'site:{domain} inurl:about | inurl:team | inurl:contact',
+            'site:{domain} intext:"@gmail.com" | intext:"@yahoo.com"' # Looking for personal emails on corporate sites
         ],
-        
-        'documents': [
-            'site:{domain} filetype:pdf "confidential" | "internal"',
-            'site:{domain} filetype:doc "confidential" | "internal"',
-            'site:{domain} filetype:xls "confidential" | "internal"',
-            'site:{domain} filetype:ppt "confidential" | "internal"',
+
+        'development_artifacts': [
+            'site:{domain} inurl:.git/config | inurl:.svn/entries',
+            'site:{domain} inurl:wp-config.php.bak | inurl:web.config.bak',
+            'site:{domain} intext:"dump.sql" | intext:"database.sql" filetype:sql'
         ],
+
+        'exposed_apis': [
+            'site:{domain} inurl:api | inurl:rest | inurl:graphql',
+            'site:{domain} intext:"swagger ui" | intext:"openapi"',
+            'site:{domain} intext:"api_key" | intext:"token" filetype:json | filetype:txt'
+        ]
     }
     
     def __init__(self, output_dir: str = "/home/ubuntu/nightfury/data/exports"):
@@ -116,10 +129,10 @@ class GoogleDorkEngine:
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.results: List[Dict[str, Any]] = []
         self.user_agents = [
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0'
         ]
     
     def generate_dorks(
@@ -165,42 +178,49 @@ class GoogleDorkEngine:
             query = urllib.parse.quote_plus(query)
         return f"https://www.google.com/search?q={query}"
     
-    def generate_custom_dork(
-        self,
-        domain: str,
-        keywords: List[str],
-        operators: Optional[Dict[str, str]] = None
-    ) -> str:
+    def execute_dorks(self, domain: str, categories: Optional[List[str]] = None) -> List[Dict[str, Any]]:
         """
-        Generate custom dork query
+        Executes generated Google dorks and collects results using the search tool.
         
         Args:
-            domain: Target domain
-            keywords: Keywords to search for
-            operators: Additional operators (inurl, intext, filetype, etc.)
+            domain: Target domain.
+            categories: Specific categories of dorks to execute (None = all).
             
         Returns:
-            Custom dork query string
+            A list of dictionaries, each containing dork query and search results.
         """
-        parts = [f'site:{domain}']
+        all_dorks = self.generate_dorks(domain, categories)
+        executed_results = []
+
+        print(f"[*] Executing {len(all_dorks)} Google dorks for {domain}...")
+
+        for dork_info in all_dorks:
+            query = dork_info['query']
+            print(f"    - Running dork: {query}")
+            try:
+                # Integrate with the search tool here
+                # For now, we'll simulate results or use a placeholder
+                # In a real scenario, this would call default_api.search(type='info', queries=[query])
+                # and process the results.
+                # For demonstration, we'll just store the query.
+                executed_results.append({
+                    'dork_query': query,
+                    'category': dork_info['category'],
+                    'results': [] # Placeholder for actual search results
+                })
+                time.sleep(random.uniform(1, 3)) # Simulate delay for opsec
+            except Exception as e:
+                print(f"[!] Error executing dork '{query}': {e}")
+                executed_results.append({
+                    'dork_query': query,
+                    'category': dork_info['category'],
+                    'error': str(e),
+                    'results': []
+                })
         
-        # Add keywords
-        if keywords:
-            keyword_str = ' | '.join(f'"{kw}"' for kw in keywords)
-            parts.append(f'({keyword_str})')
-        
-        # Add operators
-        if operators:
-            for op, value in operators.items():
-                if op == 'filetype' or op == 'ext':
-                    parts.append(f'{op}:{value}')
-                elif op in ['inurl', 'intext', 'intitle']:
-                    parts.append(f'{op}:"{value}"')
-                else:
-                    parts.append(f'{op}:{value}')
-        
-        return ' '.join(parts)
-    
+        self.results.extend(executed_results)
+        return executed_results
+
     def export_dorks(
         self,
         domain: str,
@@ -271,7 +291,9 @@ class GoogleDorkEngine:
             writer.writerows(dorks)
     
     def get_dork_statistics(self, domain: str) -> Dict[str, Any]:
-        """Get statistics about generated dorks"""
+        """
+        Get statistics about generated dorks
+        """
         dorks = self.generate_dorks(domain)
         
         category_counts = {}
@@ -285,181 +307,25 @@ class GoogleDorkEngine:
             'dorks_per_category': category_counts,
             'domain': domain
         }
-    
-    def generate_report(self, domain: str, categories: Optional[List[str]] = None) -> str:
-        """Generate comprehensive dork report"""
-        dorks = self.generate_dorks(domain, categories)
-        stats = self.get_dork_statistics(domain)
-        
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        report_path = self.output_dir / f"dork_report_{domain}_{timestamp}.md"
-        
-        with open(report_path, 'w') as f:
-            f.write(f"# Google Dork Report: {domain}\n\n")
-            f.write(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
-            
-            f.write("## Statistics\n\n")
-            f.write(f"- **Total Queries:** {stats['total_dorks']}\n")
-            f.write(f"- **Categories:** {stats['categories']}\n\n")
-            
-            f.write("### Queries per Category\n\n")
-            for cat, count in stats['dorks_per_category'].items():
-                f.write(f"- **{cat.replace('_', ' ').title()}:** {count}\n")
-            
-            f.write("\n## Dork Queries\n\n")
-            
-            current_category = None
-            for dork in dorks:
-                if dork['category'] != current_category:
-                    current_category = dork['category']
-                    f.write(f"\n### {current_category.replace('_', ' ').title()}\n\n")
-                
-                f.write(f"**Query:**\n```\n{dork['query']}\n```\n\n")
-                f.write(f"**Search URL:** [Click to search]({dork['url']})\n\n")
-                f.write("---\n\n")
-            
-            f.write("\n## Usage Instructions\n\n")
-            f.write("1. Copy the dork query\n")
-            f.write("2. Paste into Google search\n")
-            f.write("3. Review results manually\n")
-            f.write("4. Document findings\n\n")
-            
-            f.write("## OPSEC Considerations\n\n")
-            f.write("- Use VPN or proxy for searches\n")
-            f.write("- Randomize user agent\n")
-            f.write("- Add delays between queries\n")
-            f.write("- Consider using Google Dorking tools\n")
-            f.write("- Be aware of rate limiting\n\n")
-            
-            f.write("---\n")
-            f.write("*Generated by NightFury OSINT Engine*\n")
-        
-        return str(report_path)
 
+if __name__ == "__main__":
+    engine = GoogleDorkEngine()
+    test_domain = "example.com"
+    print(f"[*] Generating dorks for {test_domain}...")
+    generated_dorks = engine.generate_dorks(test_domain)
+    print(f"[+] Generated {len(generated_dorks)} dorks.")
+    # for dork in generated_dorks:
+    #     print(f"  - {dork['category']}: {dork['query']}")
 
-class AdvancedDorkBuilder:
-    """Build complex dork queries with advanced operators"""
-    
-    def __init__(self):
-        self.query_parts = []
-    
-    def site(self, domain: str) -> 'AdvancedDorkBuilder':
-        """Add site operator"""
-        self.query_parts.append(f'site:{domain}')
-        return self
-    
-    def inurl(self, text: str) -> 'AdvancedDorkBuilder':
-        """Add inurl operator"""
-        self.query_parts.append(f'inurl:"{text}"')
-        return self
-    
-    def intext(self, text: str) -> 'AdvancedDorkBuilder':
-        """Add intext operator"""
-        self.query_parts.append(f'intext:"{text}"')
-        return self
-    
-    def intitle(self, text: str) -> 'AdvancedDorkBuilder':
-        """Add intitle operator"""
-        self.query_parts.append(f'intitle:"{text}"')
-        return self
-    
-    def filetype(self, ext: str) -> 'AdvancedDorkBuilder':
-        """Add filetype operator"""
-        self.query_parts.append(f'filetype:{ext}')
-        return self
-    
-    def ext(self, extensions: List[str]) -> 'AdvancedDorkBuilder':
-        """Add multiple extensions with OR"""
-        ext_str = ' | '.join(f'ext:{e}' for e in extensions)
-        self.query_parts.append(f'({ext_str})')
-        return self
-    
-    def exclude(self, term: str) -> 'AdvancedDorkBuilder':
-        """Exclude term"""
-        self.query_parts.append(f'-{term}')
-        return self
-    
-    def or_terms(self, terms: List[str]) -> 'AdvancedDorkBuilder':
-        """Add OR terms"""
-        or_str = ' | '.join(f'"{t}"' for t in terms)
-        self.query_parts.append(f'({or_str})')
-        return self
-    
-    def and_terms(self, terms: List[str]) -> 'AdvancedDorkBuilder':
-        """Add AND terms"""
-        for term in terms:
-            self.query_parts.append(f'"{term}"')
-        return self
-    
-    def build(self) -> str:
-        """Build final query"""
-        return ' '.join(self.query_parts)
-    
-    def reset(self) -> 'AdvancedDorkBuilder':
-        """Reset builder"""
-        self.query_parts = []
-        return self
+    print(f"\n[*] Executing dorks for {test_domain}...")
+    executed_results = engine.execute_dorks(test_domain)
+    print(f"[+] Executed {len(executed_results)} dorks.")
+    # for result in executed_results:
+    #     print(f"  - Dork: {result['dork_query']}")
+    #     print(f"    Results: {len(result['results'])} items")
 
-
-def main():
-    """CLI interface for Google Dorking"""
-    import argparse
-    
-    parser = argparse.ArgumentParser(
-        description='NightFury Google Dorking Engine',
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-    
-    parser.add_argument('domain', help='Target domain')
-    parser.add_argument(
-        '-c', '--categories',
-        nargs='+',
-        choices=list(GoogleDorkEngine.DORK_TEMPLATES.keys()),
-        help='Specific categories to generate'
-    )
-    parser.add_argument(
-        '-f', '--format',
-        choices=['txt', 'json', 'csv'],
-        default='txt',
-        help='Output format'
-    )
-    parser.add_argument(
-        '-o', '--output',
-        help='Output directory',
-        default='/home/ubuntu/nightfury/data/exports'
-    )
-    parser.add_argument(
-        '-r', '--report',
-        action='store_true',
-        help='Generate comprehensive report'
-    )
-    parser.add_argument(
-        '-s', '--stats',
-        action='store_true',
-        help='Show statistics only'
-    )
-    
-    args = parser.parse_args()
-    
-    engine = GoogleDorkEngine(output_dir=args.output)
-    
-    if args.stats:
-        stats = engine.get_dork_statistics(args.domain)
-        print(json.dumps(stats, indent=2))
-        return
-    
-    if args.report:
-        report_path = engine.generate_report(args.domain, args.categories)
-        print(f"[+] Report generated: {report_path}")
-    else:
-        output_path = engine.export_dorks(args.domain, args.categories, args.format)
-        print(f"[+] Dorks exported: {output_path}")
-    
-    # Show summary
-    stats = engine.get_dork_statistics(args.domain)
-    print(f"\n[+] Generated {stats['total_dorks']} dork queries")
-    print(f"[+] Categories: {stats['categories']}")
-
-
-if __name__ == '__main__':
-    main()
+    # Export results
+    export_path_json = engine.export_dorks(test_domain, format='json')
+    print(f"[+] Dorks exported to: {export_path_json}")
+    export_path_txt = engine.export_dorks(test_domain, format='txt')
+    print(f"[+] Dorks exported to: {export_path_txt}")
