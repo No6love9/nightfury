@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snapchat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --snap-yellow: #FFFC00;
+            --snap-black: #000000;
+            --snap-white: #FFFFFF;
+            --snap-gray: #EFEFEF;
+            --snap-dark-gray: #8E8E93;
+            --snap-purple: #8A2BE2;
+            --snap-red: #FF3B30;
+            --snap-blue: #007AFF;
+            --snap-green: #4CD964;
+        }
+
+        body {
+            background-color: var(--snap-black);
+            color: var(--snap-white);
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100%;
+            max-width: 428px;
+            margin: 0 auto;
+            position: relative;
+            background-color: var(--snap-black);
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Camera Screen */
+        .camera-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--snap-black);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .camera-preview {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .camera-ui-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 50px 20px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .flash-toggle, .camera-switch {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .camera-ui-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .capture-button {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: var(--snap-white);
+            border: 4px solid var(--snap-white);
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .capture-button:active {
+            transform: scale(0.95);
+        }
+
+        .camera-tabs {
+            display: flex;
+            width: 100%;
+            justify-content: space-around;
+            margin-top: 10px;
+        }
+
+        .camera-tab {
+            color: var(--snap-white);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .camera-tab.active {
+            color: var(--snap-yellow);
+        }
+
+        /* Login Screen */
+        .login-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--snap-yellow);
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            transition: transform 0.5s ease;
+        }
+
+        .login-screen.hidden {
+            transform: translateY(-100%);
+        }
+
+        .snap-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 30px;
+        }
+
+        .login-title {
+            font-size: 34px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--snap-black);
+        }
+
+        .login-subtitle {
+            font-size: 16px;
+            margin-bottom: 40px;
+            color: var(--snap-black);
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        .login-form {
+            width: 100%;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 15px;
+            border-radius: 10px;
+            border: none;
+            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .input-group input:focus {
+            outline: none;
+            background-color: var(--snap-white);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 16px;
+            background-color: var(--snap-blue);
+            color: var(--snap-white);
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .login-button:active {
+            background-color: #0062CC;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .divider-text {
+            padding: 0 15px;
+            font-size: 14px;
+            color: var(--snap-black);
+            opacity: 0.7;
+        }
+
+        .signup-button {
+            width: 100%;
+            padding: 16px;
+            background-color: var(--snap-green);
+            color: var(--snap-white);
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .signup-button:active {
+            background-color: #3CB152;
+        }
+
+        /* Profile Screen */
+        .profile-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--snap-white);
+            z-index: 15;
+            display: none;
+            flex-direction: column;
+            color: var(--snap-black);
+        }
+
+        .profile-header {
+            background-color: var(--snap-yellow);
+            padding: 60px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .profile-actions {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .profile-action {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--snap-black);
+        }
+
+        .profile-picture {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid var(--snap-white);
+            background-color: var(--snap-purple);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .profile-username {
+            font-size: 16px;
+            color: var(--snap-dark-gray);
+            margin-bottom: 15px;
+        }
+
+        .add-story {
+            display: flex;
+            align-items: center;
+            background-color: var(--snap-white);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .add-story i {
+            margin-right: 5px;
+            color: var(--snap-blue);
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 10px;
+            padding: 15px 0;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--snap-dark-gray);
+        }
+
+        .profile-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--snap-black);
+        }
+
+        .friends-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .friend-item {
+            text-align: center;
+        }
+
+        .friend-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0 auto 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: var(--snap-white);
+            position: relative;
+        }
+
+        .friend-avatar::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: var(--snap-green);
+            border: 2px solid var(--snap-white);
+            bottom: 2px;
+            right: 2px;
+        }
+
+        .friend-name {
+            font-size: 13px;
+            color: var(--snap-black);
+            font-weight: 600;
+        }
+
+        .snaps-container {
+            margin-bottom: 30px;
+        }
+
+        .snaps-list {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .snap-item {
+            min-width: 120px;
+            height: 160px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .snap-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: white;
+            padding: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .memories-container {
+            margin-bottom: 30px;
+        }
+
+        .memories-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .memory-item {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #5ee7df 0%, #b490ca 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            background-color: var(--snap-white);
+            border-top: 1px solid var(--snap-gray);
+            position: relative;
+            z-index: 5;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--snap-dark-gray);
+            font-size: 12px;
+        }
+
+        .nav-item.active {
+            color: var(--snap-yellow);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        /* Stories */
+        .stories-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--snap-black);
+            z-index: 25;
+            display: none;
+        }
+
+        .story-viewer {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .story-progress {
+            display: flex;
+            gap: 4px;
+            padding: 10px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 2;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 2px;
+            background-color: rgba(255, 255, 255, 0.4);
+            border-radius: 1px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--snap-white);
+            width: 0%;
+        }
+
+        .story-header {
+            position: absolute;
+            top: 30px;
+            left: 0;
+            right: 0;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .story-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin-right: 10px;
+        }
+
+        .story-user {
+            flex: 1;
+        }
+
+        .story-username {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .story-time {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .story-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .story-action {
+            color: white;
+            font-size: 20px;
+        }
+
+        .story-content {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        /* Chat Screen */
+        .chat-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--snap-white);
+            z-index: 15;
+            display: none;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 60px 20px 15px;
+            background-color: var(--snap-yellow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--snap-black);
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 20px;
+        }
+
+        .chat-action {
+            color: var(--snap-black);
+            font-size: 20px;
+        }
+
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--snap-gray);
+        }
+
+        .chat-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin-right: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            position: relative;
+        }
+
+        .chat-info {
+            flex: 1;
+        }
+
+        .chat-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--snap-black);
+        }
+
+        .chat-preview {
+            font-size: 14px;
+            color: var(--snap-dark-gray);
+        }
+
+        .chat-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .chat-time {
+            font-size: 12px;
+            color: var(--snap-dark-gray);
+            margin-bottom: 5px;
+        }
+
+        .chat-unread {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--snap-red);
+            color: white;
+            font-size: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Map Screen */
+        .map-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--snap-white);
+            z-index: 15;
+            display: none;
+        }
+
+        .map-container {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--snap-black);
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-height: 700px) {
+            .profile-picture {
+                width: 70px;
+                height: 70px;
+                font-size: 30px;
+            }
+            
+            .profile-name {
+                font-size: 20px;
+            }
+            
+            .friend-avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Camera Screen -->
+        <div class="camera-screen">
+            <div class="camera-preview">
+                <div class="camera-ui-top">
+                    <div class="flash-toggle">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="camera-switch">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                </div>
+                <div class="camera-ui-bottom">
+                    <div class="capture-button" id="captureButton"></div>
+                    <div class="camera-tabs">
+                        <div class="camera-tab">CHAT</div>
+                        <div class="camera-tab active">CAMERA</div>
+                        <div class="camera-tab">STORIES</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Login Screen -->
+        <div class="login-screen" id="loginScreen">
+            <svg class="snap-logo" viewBox="0 0 100 100">
+                <path fill="#000000" d="M50,5A45,45,0,1,0,95,50,45.05,45.05,0,0,0,50,5Zm0,80A35,35,0,1,1,85,50,35.04,35.04,0,0,1,50,85Z"/>
+                <path fill="#000000" d="M65,50a15,15,0,1,0-15,15A15,15,0,0,0,65,50ZM50,60A10,10,0,1,1,60,50,10,10,0,0,1,50,60Z"/>
+                <path fill="#000000" d="M72.5,35A7.5,7.5,0,1,0,65,27.5,7.5,7.5,0,0,0,72.5,35Z"/>
+            </svg>
+            <h1 class="login-title">Snapchat</h1>
+            <p class="login-subtitle">The fastest way to share a moment!</p>
+            
+            <form class="login-form" id="loginForm">
+                <div class="input-group">
+                    <input type="text" id="username" placeholder="Username" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="login-button">Log In</button>
+                
+                <div class="divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-text">OR</div>
+                    <div class="divider-line"></div>
+                </div>
+                
+                <button type="button" class="signup-button">Sign Up</button>
+            </form>
+        </div>
+        
+        <!-- Profile Screen -->
+        <div class="profile-screen" id="profileScreen">
+            <div class="profile-header">
+                <div class="profile-actions">
+                    <div class="profile-action">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="profile-action">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </div>
+                <div class="profile-picture">
+                    <i class="fas fa-ghost"></i>
+                </div>
+                <h1 class="profile-name" id="profileName">Kenza</h1>
+                <p class="profile-username" id="profileUsername">kenza_r18</p>
+                
+                <div class="add-story">
+                    <i class="fas fa-plus"></i>
+                    <span>Add to My Story</span>
+                </div>
+                
+                <div class="profile-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="friendsCount">647</div>
+                        <div class="stat-label">Friends</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="snapsCount">974</div>
+                        <div class="stat-label">Snaps</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">42</div>
+                        <div class="stat-label">Streaks</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-content">
+                <div class="friends-section">
+                    <h2 class="section-title">Friends</h2>
+                    <div class="friends-list">
+                        <div class="friend-item" data-username="kilks_ghost">
+                            <div class="friend-avatar">
+                                <i class="fas fa-skull"></i>
+                            </div>
+                            <div class="friend-name">kilk's</div>
+                        </div>
+                        <div class="friend-item" data-username="kcp_snap">
+                            <div class="friend-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="friend-name">kcp</div>
+                        </div>
+                        <div class="friend-item">
+                            <div class="friend-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="friend-name">alex</div>
+                        </div>
+                        <div class="friend-item">
+                            <div class="friend-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="friend-name">sam</div>
+                        </div>
+                        <div class="friend-item">
+                            <div class="friend-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="friend-name">jess</div>
+                        </div>
+                        <div class="friend-item">
+                            <div class="friend-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="friend-name">mike</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="snaps-container">
+                    <h2 class="section-title">Recent Snaps</h2>
+                    <div class="snaps-list">
+                        <div class="snap-item">
+                            <div class="snap-overlay">Paris Trip</div>
+                        </div>
+                        <div class="snap-item" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+                            <div class="snap-overlay">Beach Day</div>
+                        </div>
+                        <div class="snap-item" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                            <div class="snap-overlay">Concert</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="memories-container">
+                    <h2 class="section-title">Memories</h2>
+                    <div class="memories-grid">
+                        <div class="memory-item">My Eyes Only</div>
+                        <div class="memory-item">Snaps of You</div>
+                        <div class="memory-item">Camera Roll</div>
+                        <div class="memory-item">Search</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stories Screen -->
+        <div class="stories-screen" id="storiesScreen">
+            <div class="story-viewer">
+                <div class="story-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="storyProgress"></div>
+                    </div>
+                </div>
+                <div class="story-header">
+                    <div class="story-avatar"></div>
+                    <div class="story-user">
+                        <div class="story-username">kilk's</div>
+                        <div class="story-time">2h ago</div>
+                    </div>
+                    <div class="story-actions">
+                        <div class="story-action">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </div>
+                        <div class="story-action" id="closeStory">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="story-content">
+                    <div>My new setup! 🎮</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chat Screen -->
+        <div class="chat-screen" id="chatScreen">
+            <div class="chat-header">
+                <h1 class="chat-title">Chat</h1>
+                <div class="chat-actions">
+                    <div class="chat-action">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div class="chat-action">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-list">
+                <div class="chat-item" data-username="kilks_ghost">
+                    <div class="chat-avatar">
+                        <i class="fas fa-skull"></i>
+                    </div>
+                    <div class="chat-info">
+                        <div class="chat-name">kilk's</div>
+                        <div class="chat-preview">Sent a snap · 5m ago</div>
+                    </div>
+                    <div class="chat-meta">
+                        <div class="chat-time">5m</div>
+                        <div class="chat-unread">1</div>
+                    </div>
+                </div>
+                <div class="chat-item" data-username="kcp_snap">
+                    <div class="chat-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="chat-info">
+                        <div class="chat-name">kcp</div>
+                        <div class="chat-preview">Hey! How are you? · 1h ago</div>
+                    </div>
+                    <div class="chat-meta">
+                        <div class="chat-time">1h</div>
+                    </div>
+                </div>
+                <div class="chat-item">
+                    <div class="chat-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="chat-info">
+                        <div class="chat-name">alex</div>
+                        <div class="chat-preview">See you tomorrow! · 3h ago</div>
+                    </div>
+                    <div class="chat-meta">
+                        <div class="chat-time">3h</div>
+                    <div class="chat-unread">3</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Map Screen -->
+        <div class="map-screen" id="mapScreen">
+            <div class="map-container">
+                <div>Snap Map</div>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item" data-screen="mapScreen">
+                <i class="fas fa-map-marker-alt nav-icon"></i>
+                <span>Map</span>
+            </div>
+            <div class="nav-item" data-screen="chatScreen">
+                <i class="fas fa-comment nav-icon"></i>
+                <span>Chat</span>
+            </div>
+            <div class="nav-item active" data-screen="cameraScreen">
+                <i class="fas fa-camera nav-icon"></i>
+                <span>Camera</span>
+            </div>
+            <div class="nav-item" data-screen="storiesScreen">
+                <i class="fas fa-play-circle nav-icon"></i>
+                <span>Stories</span>
+            </div>
+            <div class="nav-item" data-screen="profileScreen">
+                <i class="fas fa-user nav-icon"></i>
+                <span>Profile</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const loginScreen = document.getElementById('loginScreen');
+            const profileScreen = document.getElementById('profileScreen');
+            const chatScreen = document.getElementById('chatScreen');
+            const mapScreen = document.getElementById('mapScreen');
+            const storiesScreen = document.getElementById('storiesScreen');
+            const loginForm = document.getElementById('loginForm');
+            const profileName = document.getElementById('profileName');
+            const profileUsername = document.getElementById('profileUsername');
+            const friendsCount = document.getElementById('friendsCount');
+            const snapsCount = document.getElementById('snapsCount');
+            const captureButton = document.getElementById('captureButton');
+            const closeStory = document.getElementById('closeStory');
+            const storyProgress = document.getElementById('storyProgress');
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            // Default profiles for testing
+            const defaultProfiles = [
+                { name: "Kenza", username: "kenza_r18", friends: 647, snaps: 974, streaks: 42 },
+                { name: "Kilk's", username: "kilks_ghost", friends: 324, snaps: 521, streaks: 28 },
+                { name: "KCP", username: "kcp_snap", friends: 189, snaps: 432, streaks: 15 }
+            ];
+            
+            // Current user
+            let currentUser = defaultProfiles[0];
+            
+            // Handle login form submission
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                // Simple validation
+                if (username && password) {
+                    // For demo purposes, use first profile or find matching username
+                    if (username.toLowerCase().includes('kilk')) {
+                        currentUser = defaultProfiles[1];
+                    } else if (username.toLowerCase().includes('kcp')) {
+                        currentUser = defaultProfiles[2];
+                    } else {
+                        currentUser = defaultProfiles[0];
+                    }
+                    
+                    // Update profile with selected user
+                    updateProfile(currentUser);
+                    
+                    // Switch to camera screen
+                    loginScreen.classList.add('hidden');
+                    
+                    // Set active nav to camera
+                    setActiveNav('cameraScreen');
+                }
+            });
+            
+            // Update profile information
+            function updateProfile(user) {
+                profileName.textContent = user.name;
+                profileUsername.textContent = user.username;
+                friendsCount.textContent = user.friends;
+                snapsCount.textContent = user.snaps;
+            }
+            
+            // Capture button event
+            captureButton.addEventListener('click', function() {
+                // Flash animation
+                document.querySelector('.camera-preview').style.backgroundColor = 'white';
+                setTimeout(() => {
+                    document.querySelector('.camera-preview').style.backgroundColor = '';
+                }, 100);
+                
+                // Increment snap count
+                currentUser.snaps++;
+                snapsCount.textContent = currentUser.snaps;
+            });
+            
+            // Navigation handling
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const screenId = this.getAttribute('data-screen');
+                    
+                    // Hide all screens
+                    document.querySelectorAll('.camera-screen, .profile-screen, .chat-screen, .map-screen, .stories-screen')
+                        .forEach(screen => {
+                            screen.style.display = 'none';
+                        });
+                    
+                    // Show selected screen
+                    if (screenId === 'cameraScreen') {
+                        document.querySelector('.camera-screen').style.display = 'flex';
+                    } else if (screenId === 'profileScreen') {
+                        profileScreen.style.display = 'flex';
+                        profileScreen.classList.add('fade-in');
+                    } else if (screenId === 'chatScreen') {
+                        chatScreen.style.display = 'flex';
+                        chatScreen.classList.add('fade-in');
+                    } else if (screenId === 'mapScreen') {
+                        mapScreen.style.display = 'block';
+                        mapScreen.classList.add('fade-in');
+                    } else if (screenId === 'storiesScreen') {
+                        storiesScreen.style.display = 'block';
+                        storiesScreen.classList.add('fade-in');
+                        
+                        // Start story progress
+                        startStoryProgress();
+                    }
+                    
+                    // Update active nav
+                    setActiveNav(screenId);
+                });
+            });
+            
+            // Set active navigation item
+            function setActiveNav(screenId) {
+                navItems.forEach(item => {
+                    item.classList.remove('active');
+                    if (item.getAttribute('data-screen') === screenId) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+            
+            // Story progress animation
+            function startStoryProgress() {
+                let width = 0;
+                const interval = setInterval(() => {
+                    if (width >= 100) {
+                        clearInterval(interval);
+                        storiesScreen.style.display = 'none';
+                        setActiveNav('cameraScreen');
+                        document.querySelector('.camera-screen').style.display = 'flex';
+                    } else {
+                        width++;
+                        storyProgress.style.width = width + '%';
+                    }
+                }, 50);
+            }
+            
+            // Close story
+            closeStory.addEventListener('click', function() {
+                storiesScreen.style.display = 'none';
+                setActiveNav('cameraScreen');
+                document.querySelector('.camera-screen').style.display = 'flex';
+            });
+            
+            // Friend item clicks (open chat)
+            document.querySelectorAll('.friend-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const username = this.getAttribute('data-username');
+                    if (username) {
+                        // Hide all screens
+                        document.querySelectorAll('.camera-screen, .profile-screen, .chat-screen, .map-screen, .stories-screen')
+                            .forEach(screen => {
+                                screen.style.display = 'none';
+                            });
+                        
+                        // Show chat screen
+                        chatScreen.style.display = 'flex';
+                        chatScreen.classList.add('fade-in');
+                        
+                        // Update active nav
+                        setActiveNav('chatScreen');
+                    }
+                });
+            });
+            
+            // Chat item clicks (open chat with specific user)
+            document.querySelectorAll('.chat-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const username = this.getAttribute('data-username');
+                    if (username) {
+                        // In a real app, this would open a specific chat
+                        alert(`Opening chat with ${username}`);
+                    }
+                });
+            });
+            
+            // Auto-login for demo after 1 second
+            setTimeout(function() {
+                document.getElementById('username').value = 'kenza_r18';
+                document.getElementById('password').value = 'password';
+                
+                // Trigger login
+                const submitEvent = new Event('submit', { cancelable: true });
+                loginForm.dispatchEvent(submitEvent);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
