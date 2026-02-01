@@ -32,7 +32,7 @@ print_banner() {
     ██║ ╚████║██║╚██████╔╝██║  ██║   ██║   ██║     ╚██████╔╝██║  ██║   ██║   
     ╚═╝  ╚═══╝╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   
                         Professional Red Team Operations Framework
-                                    Version 2.1 (Compact)
+                                    Version 2.2 (Plugin-Enabled)
 EOF
 }
 
@@ -45,6 +45,30 @@ print_warning() { echo -e "${YELLOW}[!]${NC} $1"; }
 cmd_status() {
     print_info "NightFury Framework Status"
     python3 "${NIGHTFURY_HOME}/core/detection_engine.py" -q | python3 -m json.tool
+}
+
+# Command: RuneHall Plugin
+cmd_runehall() {
+    local subcmd="$1"
+    shift
+    export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
+    
+    case "$subcmd" in
+        recon)
+            print_info "Launching RuneHall Recon..."
+            python3 -c "from modules.plugins.runehall_pro import RuneHallPlugin; p = RuneHallPlugin('${NIGHTFURY_CONFIG}/c2_runehall.yaml'); p.run_recon()"
+            ;;
+        kit)
+            local lhost="${1:-127.0.0.1}"
+            local lport="${2:-4444}"
+            print_info "Generating RuneHall Attack Kit (LHOST: $lhost, LPORT: $lport)..."
+            python3 -c "import json; from modules.plugins.runehall_pro import RuneHallPlugin; p = RuneHallPlugin('${NIGHTFURY_CONFIG}/c2_runehall.yaml'); print(json.dumps(p.generate_attack_kit('$lhost', $lport), indent=2))"
+            ;;
+        *)
+            print_error "Usage: nightfury.sh runehall [recon|kit]"
+            return 1
+            ;;
+    esac
 }
 
 # Command: DNS Bypass
@@ -86,7 +110,7 @@ cmd_health() {
 # Command: Help
 cmd_help() {
     cat << EOF
-NightFury Compact - Command Reference
+NightFury Plugin-Enabled - Command Reference
 
 CORE:
   status              Show framework status
@@ -94,11 +118,12 @@ CORE:
   bypass <domain>     Cloudflare Bypass & DNS Deep-dive
   xss                 Generate aggressive XSS payloads
   beef <module>       Generate BeEF-integrated payloads
+  runehall <cmd>      RuneHall.com Specialized Plugin (recon|kit)
   panic               Emergency cleanup and exit
 
 EXAMPLES:
   nightfury.sh bypass target.com
-  nightfury.sh xss
+  nightfury.sh runehall kit 192.168.1.10 4444
   nightfury.sh beef pretty_theft
 EOF
 }
@@ -113,6 +138,7 @@ main() {
         bypass) cmd_bypass "$@" ;;
         xss) cmd_xss "$@" ;;
         beef) cmd_beef "$@" ;;
+        runehall) cmd_runehall "$@" ;;
         health) cmd_health "$@" ;;
         help|--help|-h) print_banner; cmd_help ;;
         *) print_error "Unknown command: $command"; exit 1 ;;

