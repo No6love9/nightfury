@@ -1,0 +1,276 @@
+# NightFury OPSEC Rules Configuration
+# Operational Security policies and countermeasures
+
+version: "2.0"
+last_updated: "2026-01-31"
+
+# General OPSEC Settings
+general:
+  level: high  # low, medium, high, paranoid
+  auto_cleanup: true
+  forensic_countermeasures: true
+  log_sanitization: true
+  
+# Network OPSEC
+network:
+  require_vpn: false  # Set to true to enforce VPN
+  require_proxy: false  # Set to true to enforce proxy
+  min_proxy_chain_length: 2
+  randomize_user_agent: true
+  randomize_tls_fingerprint: true
+  dns_over_https: true
+  
+  # Rate limiting to avoid detection
+  rate_limiting:
+    enabled: true
+    max_requests_per_minute: 30
+    delay_between_requests: 2  # seconds
+    jitter_range: [1, 5]  # random delay range
+  
+  # Blocked destinations (avoid honeypots)
+  blocked_ips: []
+  blocked_domains: []
+
+# C2 OPSEC
+c2:
+  min_beacon_time: 30  # seconds
+  max_beacon_time: 300
+  jitter_percentage: 20  # 20% jitter
+  
+  # Data exfiltration limits
+  max_exfil_size: 10485760  # 10 MB per beacon
+  chunk_size: 1048576  # 1 MB chunks
+  
+  # Protocol restrictions
+  allowed_protocols:
+    - http
+    - https
+    - dns
+  
+  # Domain fronting
+  domain_fronting:
+    enabled: false
+    providers: []
+  
+  # Header consistency
+  headers:
+    user_agent_rotation: true
+    accept_language: "en-US,en;q=0.9"
+    accept_encoding: "gzip, deflate, br"
+
+# File Operations OPSEC
+files:
+  # Automatic cleanup
+  auto_delete_temp: true
+  secure_delete: true  # Use shred/srm
+  
+  # File timestamp manipulation
+  preserve_timestamps: false
+  randomize_timestamps: true
+  
+  # Sensitive file patterns to avoid
+  sensitive_patterns:
+    - "*.key"
+    - "*.pem"
+    - "*password*"
+    - "*secret*"
+    - "*.env"
+  
+  # Export encryption
+  encrypt_exports: false  # Set to true for encrypted exports
+  encryption_algorithm: "AES-256-GCM"
+
+# Logging OPSEC
+logging:
+  # What to log
+  log_level: info  # debug, info, warning, error, critical
+  log_commands: true
+  log_results: true
+  
+  # What NOT to log
+  sanitize_credentials: true
+  sanitize_api_keys: true
+  sanitize_ips: false
+  
+  # Log rotation
+  max_log_size: 10485760  # 10 MB
+  max_log_files: 5
+  
+  # Log encryption
+  encrypt_logs: false
+  
+  # Auto-cleanup
+  auto_cleanup_days: 7
+
+# Process OPSEC
+process:
+  # Process hiding
+  hide_process_name: false
+  custom_process_name: null
+  
+  # Resource limits
+  max_cpu_percent: 50
+  max_memory_mb: 1024
+  
+  # Persistence
+  auto_restart: false
+  watchdog_enabled: false
+
+# Authentication OPSEC
+authentication:
+  # Password requirements
+  min_password_length: 12
+  require_special_chars: true
+  require_numbers: true
+  require_uppercase: true
+  
+  # Session management
+  session_timeout: 3600  # 1 hour
+  max_failed_attempts: 3
+  lockout_duration: 300  # 5 minutes
+  
+  # Codeword requirement
+  require_codeword: true
+  codeword: "SHEBA"
+  
+  # Multi-factor authentication
+  mfa_enabled: false
+
+# Data Exfiltration OPSEC
+exfiltration:
+  # Allowed export formats
+  allowed_formats:
+    - txt
+    - csv
+    - json
+    - pdf
+  
+  # Automatic redaction
+  redact_sensitive: true
+  redaction_patterns:
+    - "password"
+    - "api_key"
+    - "secret"
+    - "token"
+  
+  # Compression
+  compress_exports: true
+  compression_level: 6
+  
+  # Encryption
+  encrypt_before_export: false
+
+# Emergency Protocols
+emergency:
+  # Panic mode triggers
+  panic_keywords:
+    - "ABORT"
+    - "EMERGENCY"
+    - "COMPROMISED"
+  
+  # Panic mode actions
+  panic_actions:
+    - sanitize_logs
+    - delete_temp_files
+    - clear_command_history
+    - disable_network
+    - create_incident_report
+  
+  # Dead man's switch
+  dead_mans_switch:
+    enabled: false
+    timeout: 3600  # 1 hour
+    action: "sanitize_and_exit"
+
+# Forensic Countermeasures
+forensics:
+  # Anti-forensics techniques
+  clear_bash_history: true
+  clear_python_cache: true
+  clear_temp_files: true
+  
+  # Timestamp manipulation
+  touch_files: false
+  randomize_access_times: false
+  
+  # Memory protection
+  clear_memory_on_exit: true
+  avoid_swap: true
+  
+  # Artifact removal
+  remove_logs_on_exit: false
+  shred_sensitive_files: true
+
+# Compliance & Legal
+compliance:
+  # Operational boundaries
+  respect_robots_txt: false
+  respect_rate_limits: true
+  
+  # Geographic restrictions
+  blocked_countries: []
+  allowed_countries: []
+  
+  # Target restrictions
+  blocked_targets: []
+  require_authorization: true
+
+# Alerting & Notifications
+alerting:
+  # Alert on security events
+  alert_on_intrusion: true
+  alert_on_failure: true
+  alert_on_anomaly: true
+  
+  # Alert methods
+  methods:
+    - log_file
+    - console
+  
+  # Alert severity levels
+  min_severity: warning  # debug, info, warning, error, critical
+
+# Module-Specific OPSEC
+modules:
+  osint:
+    use_proxy: true
+    randomize_timing: true
+    max_concurrent_requests: 5
+  
+  web_exploitation:
+    use_proxy: true
+    custom_user_agent: true
+    max_scan_depth: 3
+  
+  c2_nexus:
+    require_encryption: true
+    min_key_size: 2048
+    rotate_keys: true
+
+# Audit & Compliance
+audit:
+  enabled: true
+  log_all_actions: true
+  log_authentication: true
+  log_authorization: true
+  
+  # Audit log retention
+  retention_days: 30
+  
+  # Audit log protection
+  tamper_protection: true
+  sign_logs: false
+
+# Notes
+notes: |
+  These OPSEC rules are designed for professional red team operations.
+  Adjust settings based on your operational requirements and legal boundaries.
+  Always ensure proper authorization before conducting security assessments.
+  
+  For paranoid mode, set:
+    - general.level: paranoid
+    - network.require_vpn: true
+    - network.require_proxy: true
+    - files.encrypt_exports: true
+    - logging.encrypt_logs: true
+    - exfiltration.encrypt_before_export: true
