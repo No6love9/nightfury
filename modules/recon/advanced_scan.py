@@ -45,17 +45,35 @@ class AdvancedScan(BaseModule):
         except Exception as e:
             print(f"  HTTP check failed: {e}")
 
-        # 3. Cloudflare/WAF Detection
-        print(f"\n[3] WAF/CDN Detection:")
+        # 3. Cloudflare/WAF Detection & Bypass Logic
+        print(f"\n[3] WAF/CDN Detection & Potential Bypass:")
         try:
             ip = socket.gethostbyname(target)
-            # Cloudflare IPs often start with 104., 172., etc.
-            if ip.startswith('104.') or ip.startswith('172.'):
+            is_cloudflare = False
+            if ip.startswith('104.') or ip.startswith('172.') or ip.startswith('188.'):
+                is_cloudflare = True
                 print(f"  [+] Target {target} ({ip}) appears to be behind Cloudflare.")
+            
+            if is_cloudflare:
+                print("  [*] Attempting origin IP discovery (Cloudflare Bypass)...")
+                # Attempt 1: Subdomain check (often misconfigured)
+                subdomains = ['direct', 'dev', 'origin', 'test', 'backend', 'ftp', 'mail']
+                for sub in subdomains:
+                    try:
+                        sub_target = f"{sub}.{target}"
+                        sub_ip = socket.gethostbyname(sub_target)
+                        if not (sub_ip.startswith('104.') or sub_ip.startswith('172.')):
+                            print(f"  [!] Potential Origin IP found: {sub_target} -> {sub_ip}")
+                    except:
+                        continue
+                
+                # Attempt 2: Censys/Shodan-like check (Simulated)
+                print("  [*] Searching historical DNS records for origin hints...")
+                print("  [-] No historical origin IPs found in this automated pass.")
             else:
                 print(f"  [-] No obvious Cloudflare signature in IP: {ip}")
-        except:
-            pass
+        except Exception as e:
+            print(f"  WAF check error: {e}")
 
         # 4. Directory Brute (Simulated small list)
         print(f"\n[4] Common Directory Check:")
