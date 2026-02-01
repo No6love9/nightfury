@@ -129,6 +129,36 @@ cmd_dork() {
         "$@"
 }
 
+# Command: BeEF Integration
+cmd_beef() {
+    local module="$1"
+    shift
+    
+    if [[ -z "$module" ]]; then
+        print_error "Usage: nightfury.sh beef <module> [options]"
+        echo "Available modules: pretty_theft, internal_ip, port_scanner, visited_domains"
+        return 1
+    fi
+    
+    print_info "Generating BeEF-integrated payload: $module"
+    
+    # Set PYTHONPATH to include the project root for module imports
+    export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
+    
+    python3 -c "
+import sys
+import os
+sys.path.append('${NIGHTFURY_HOME}')
+from modules.beef_integration.beef_core import BeEFIntegration
+b = BeEFIntegration(base_path='${NIGHTFURY_HOME}/modules/beef_integration/payloads')
+try:
+    print(b.get_payload('$module'))
+except Exception as e:
+    print(f'Error: {e}', file=sys.stderr)
+    sys.exit(1)
+"
+}
+
 # Command: Auth
 cmd_auth() {
     local subcmd="$1"
@@ -267,6 +297,8 @@ OSINT COMMANDS:
   osint <domain>      Run full OSINT reconnaissance
   dork <domain>       Generate Google Dorks for domain
                       Options: -c <categories> -f <format> -r (report)
+  beef <module>       Generate integrated BeEF payload (OSINT/Exploit)
+                      Modules: pretty_theft, internal_ip, port_scanner, visited_domains
 
 AUTHENTICATION:
   auth login <user> <pass> [--codeword SHEBA]
@@ -287,6 +319,7 @@ EXAMPLES:
   nightfury.sh status
   nightfury.sh osint example.com
   nightfury.sh dork example.com -c sensitive_files -r
+  nightfury.sh beef pretty_theft
   nightfury.sh auth login admin nightfury2024 --codeword SHEBA
   nightfury.sh web
   nightfury.sh logs error
@@ -319,6 +352,9 @@ main() {
             ;;
         dork)
             cmd_dork "$@"
+            ;;
+        beef)
+            cmd_beef "$@"
             ;;
         auth)
             cmd_auth "$@"

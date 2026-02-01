@@ -19,10 +19,12 @@ nightfury --help
 - **`nightfury web`**: Starts the web interface, which provides a real-time dashboard for monitoring and controlling the framework.
 - **`nightfury stop`**: Stops all running NightFury services, including the web interface and any background tasks.
 
-### **OSINT Commands**
+### **OSINT & Exploitation Commands**
 
 - **`nightfury osint <domain>`**: Launches a full OSINT reconnaissance scan on the specified domain. This includes Google Dorking, subdomain enumeration, and domain profiling.
 - **`nightfury dork <domain> [options]`**: Generates targeted Google Dorks for a domain. You can specify categories, output formats, and generate a full report.
+- **`nightfury beef <module>`**: Generates re-engineered BeEF payloads for clandestine web reconnaissance and exploitation.
+    - Available modules: `pretty_theft`, `internal_ip`, `port_scanner`, `visited_domains`.
 
 ### **Authentication Commands**
 
@@ -70,13 +72,21 @@ nightfury osint example.com
 
 # Generate a specific dork report
 nightfury dork example.com -c sensitive_files -r
+
+# Retrieve internal LAN IP of a target via WebRTC
+nightfury beef internal_ip
 ```
 
 All results will be saved in the `/opt/nightfury/data/exports` directory.
 
 ### **2. Web Exploitation**
 
-Once you have identified potential web vulnerabilities, you can use the web exploitation module to test them. This is typically done through the web interface, where you can configure and launch scans.
+Once you have identified potential web vulnerabilities, you can use the web exploitation module to test them. This is typically done through the web interface, where you can configure and launch scans. You can also generate standalone payloads:
+
+```bash
+# Generate a Facebook phishing overlay
+nightfury beef pretty_theft
+```
 
 ### **3. C2 Operations**
 
