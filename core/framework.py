@@ -3,14 +3,17 @@ import sys
 import json
 import logging
 import importlib
-from typing import Dict, Any
+import readline
+from typing import Dict, Any, List
 
 class NightfuryFramework:
     def __init__(self):
         self.config = self.load_config()
         self.setup_logging()
         self.modules = {}
+        self.current_module = None
         self.logger = logging.getLogger("NIGHTFURY")
+        self.project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     def load_config(self) -> Dict[str, Any]:
         config_path = 'nightfury_config.json'
@@ -25,7 +28,7 @@ class NightfuryFramework:
     def setup_logging(self):
         logging.basicConfig(
             level=logging.INFO,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            format='%(asctime)s [%(levelname)s] %(message)s',
             handlers=[
                 logging.FileHandler("nightfury.log"),
                 logging.StreamHandler()
@@ -33,130 +36,150 @@ class NightfuryFramework:
         )
 
     def log(self, message: str, level: str = "info"):
-        if level.lower() == "info":
-            self.logger.info(message)
-        elif level.lower() == "warning":
-            self.logger.warning(message)
-        elif level.lower() == "error":
-            self.logger.error(message)
-        elif level.lower() == "critical":
-            self.logger.critical(message)
+        getattr(self.logger, level.lower())(message)
 
     def load_modules(self):
-        """Dynamically load modules from the modules directory."""
-        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        modules_path = os.path.join(project_root, 'modules')
-        self.log(f"Loading modules from {modules_path}...")
-        
+        modules_path = os.path.join(self.project_root, 'modules')
         if not os.path.exists(modules_path):
             os.makedirs(modules_path)
             return
 
-        for root, dirs, files in os.walk(modules_path):
+        if self.project_root not in sys.path:
+            sys.path.append(self.project_root)
+
+        for root, _, files in os.walk(modules_path):
             for file in files:
                 if file.endswith('.py') and not file.startswith('__'):
-                    # Convert file path to module path
-                    rel_path = os.path.relpath(os.path.join(root, file), project_root)
+                    rel_path = os.path.relpath(os.path.join(root, file), self.project_root)
                     module_path = rel_path.replace(os.path.sep, '.')[:-3]
-                    
                     try:
-                        # Ensure the parent packages are in sys.path
-                        if project_root not in sys.path:
-                            sys.path.append(project_root)
-                            
                         mod = importlib.import_module(module_path)
                         for name, obj in mod.__dict__.items():
                             if isinstance(obj, type) and name != 'BaseModule':
-                                # Check if it inherits from BaseModule (checking by name to avoid import issues)
                                 if any(base.__name__ == 'BaseModule' for base in obj.__bases__):
                                     module_instance = obj(self)
-                                    self.modules[module_name := getattr(module_instance, 'name', file[:-3])] = module_instance
-                                    self.log(f"Loaded module: {module_name}")
+                                    m_name = getattr(module_instance, 'name', file[:-3])
+                                    # Use category/name format like MSF
+                                    category = os.path.basename(root)
+                                    full_name = f"{category}/{m_name}"
+                                    self.modules[full_name] = module_instance
                     except Exception as e:
-                        self.log(f"Failed to load module {module_path}: {e}", "error")
-
-    def run_module(self, name: str, args: Any):
-        if name in self.modules:
-            try:
-                self.modules[name].run(args)
-            except Exception as e:
-                self.log(f"Error running module {name}: {e}", "error")
-        else:
-            self.log(f"Module {name} not found.", "warning")
+                        self.log(f"Failed to load {module_path}: {e}", "error")
 
     def print_banner(self):
         banner = r"""
-   _  _ _  ____ _  _ ___ ____ _  _ ____ _   _ 
-   |\ | |  | __ |__|  |  |___ |  | |__/  \_/  
-   | \| |  |__] |  |  |  |    |__| |  \   |   
-                                              
-           NIGHTFURY FRAMEWORK v1.2
-        Enhanced & Modular Pentest Suite
+      _   _ _       _     _  _____                
+     | \ | (_)     | |   | ||  ___|               
+     |  \| |_  __ _| |__ | || |__ _   _ _ __ _   _ 
+     | . ` | |/ _` | '_ \| ||  __| | | | '__| | | |
+     | |\  | | (_| | | | | || |__| |_| | |  | |_| |
+     |_| \_|_|\__, |_| |_|_|\____/\__,_|_|   \__, |
+               __/ |                          __/ |
+              |___/                          |___/ 
         """
-        print("\033[1;36m" + banner + "\033[0m")
-
-    def install_dependencies(self):
-        """Auto-install required dependencies."""
-        deps = ["requests", "flask", "cryptography", "rich"]
-        import subprocess
-        for dep in deps:
-            try:
-                __import__(dep)
-            except ImportError:
-                self.log(f"Installing missing dependency: {dep}")
-                subprocess.check_call([sys.executable, "-m", "pip", "install", dep])
+        print("\033[1;31m" + banner + "\033[0m")
+        print(f"       =[ Nightfury v2.0-dev                           ]")
+        print(f" + -- --=[ {len(self.modules)} modules loaded                           ]\n")
 
     def start_cli(self):
-        try:
-            import readline
-        except ImportError:
-            pass # Readline not available on Windows without pyreadline
-            
-        self.print_banner()
-        self.install_dependencies()
         self.load_modules()
+        self.print_banner()
         
+        # Setup tab completion
+        def completer(text, state):
+            options = [cmd for cmd in ['help', 'use', 'set', 'show', 'run', 'exploit', 'back', 'exit', 'quit', 'list'] if cmd.startswith(text)]
+            if self.current_module:
+                options.extend([opt for opt in self.current_module.options if opt.startswith(text)])
+            if text.startswith('exploit/') or text.startswith('recon/') or text.startswith('c2/'):
+                options.extend([m for m in self.modules if m.startswith(text)])
+            
+            if state < len(options):
+                return options[state]
+            return None
+
+        readline.set_completer(completer)
+        readline.parse_and_bind("tab: complete")
+
         while True:
             try:
-                cmd_input = input("\033[1;32mnightfury\033[0m > ").strip()
+                prompt = "nf"
+                if self.current_module:
+                    prompt += f" \033[1;31m{self.current_module.name}\033[0m"
+                cmd_input = input(f"{prompt} > ").strip()
                 if not cmd_input: continue
-                cmd = cmd_input.split()
                 
-                if cmd[0] in ['exit', 'quit']: break
-                if cmd[0] == 'help':
-                    print("\nAvailable commands:")
-                    print("  help           Show this help message")
-                    print("  list           List all available modules")
-                    print("  info <module>  Show details about a module")
-                    print("  use <module>   Execute a module")
-                    print("  exit           Exit the framework\n")
-                elif cmd[0] == 'list':
-                    print("\nAvailable modules:")
-                    for m in self.modules:
-                        print(f"  - {m:15} : {getattr(self.modules[m], 'description', 'No description')}")
-                    print("")
-                elif cmd[0] == 'info':
-                    if len(cmd) > 1:
-                        m_name = cmd[1]
-                        if m_name in self.modules:
-                            m = self.modules[m_name]
-                            print(f"\nModule: {m.name}")
-                            print(f"Description: {m.description}")
-                            print(f"Options: {m.options}\n")
-                        else:
-                            print(f"Module {m_name} not found.")
-                    else:
-                        print("Usage: info <module>")
-                elif cmd[0] == 'use':
-                    if len(cmd) > 1:
-                        self.run_module(cmd[1], cmd[2:] if len(cmd) > 2 else [])
-                    else:
-                        print("Usage: use <module> [args]")
-                else:
-                    print(f"Unknown command: {cmd[0]}")
-            except KeyboardInterrupt:
-                print("\nUse 'exit' to quit.")
-            except EOFError:
-                break
-            except Exception as e:
-                print(f"Error: {e}")
+                parts = cmd_input.split()
+                cmd = parts[0].lower()
+                args = parts[1:]
+
+                if cmd in ['exit', 'quit']: break
+                elif cmd == 'help': self.show_help()
+                elif cmd == 'show': self.handle_show(args)
+                elif cmd == 'use': self.handle_use(args)
+                elif cmd == 'set': self.handle_set(args)
+                elif cmd == 'back': self.current_module = None
+                elif cmd in ['run', 'exploit']: self.handle_run()
+                else: print(f"[-] Unknown command: {cmd}")
+            except KeyboardInterrupt: print("\n[*] Interrupt caught, use 'exit' to quit.")
+            except EOFError: break
+            except Exception as e: print(f"[-] Error: {e}")
+
+    def show_help(self):
+        print("\nCore Commands\n=============\n")
+        print("  Command       Description")
+        print("  -------       -----------")
+        print("  help          Help menu")
+        print("  use <mod>     Select a module")
+        print("  show <type>   Displays modules of a given type, or 'options'")
+        print("  set <var> <v> Sets a context-specific variable to a value")
+        print("  run           Launch the current module")
+        print("  back          Move back from the current context")
+        print("  exit          Exit the framework\n")
+
+    def handle_show(self, args):
+        if not args: return
+        target = args[0].lower()
+        if target == 'modules':
+            print("\nModules\n=======\n")
+            print("  Name                          Description")
+            print("  ----                          -----------")
+            for name, mod in self.modules.items():
+                print(f"  {name:30} {mod.description}")
+            print("")
+        elif target == 'options':
+            if self.current_module:
+                print(f"\nModule options ({self.current_module.name}):\n")
+                print("  Name       Current Setting  Description")
+                print("  ----       ---------------  -----------")
+                for name, val in self.current_module.options.items():
+                    print(f"  {name:10} {str(val):16} Module option")
+                print("")
+            else: print("[-] No module selected.")
+
+    def handle_use(self, args):
+        if not args: return
+        name = args[0]
+        if name in self.modules:
+            self.current_module = self.modules[name]
+        else:
+            # Try to find by short name
+            matches = [m for m in self.modules if m.endswith(f"/{name}")]
+            if matches: self.current_module = self.modules[matches[0]]
+            else: print(f"[-] Failed to load module: {name}")
+
+    def handle_set(self, args):
+        if len(args) < 2: return
+        if self.current_module:
+            self.current_module.options[args[0]] = args[1]
+            print(f"{args[0]} => {args[1]}")
+        else: print("[-] No module selected.")
+
+    def handle_run(self):
+        if self.current_module:
+            print(f"[*] Launching {self.current_module.name}...")
+            self.current_module.run([])
+        else: print("[-] No module selected.")
+
+if __name__ == "__main__":
+    nf = NightfuryFramework()
+    nf.start_cli()
