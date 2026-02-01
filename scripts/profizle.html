@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Rules of Engagement (RoE) Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #1a1a2e;
+            --bg-light: #2a2a3e;
+            --text-primary: #f0f0f5;
+            --text-secondary: #a0a0c0;
+            --accent-blue: #007bff;
+            --accent-green: #00bfa5;
+            --accent-red: #d94848;
+            --accent-purple: #9b59b6;
+            --border-color: #4a4a6e;
+            --doc-bg: #ffffff;
+            --doc-text: #222222;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: var(--bg-light);
+            border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+        }
+
+        h1 {
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--accent-blue);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        
+        /* --- Accordion Styling --- */
+        details {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        summary {
+            padding: 15px 20px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent-green);
+            cursor: pointer;
+            list-style: none;
+        }
+        summary::-webkit-details-marker { display: none; }
+        summary::before {
+            content: '+';
+            font-size: 1.8rem;
+            margin-right: 15px;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        details[open] summary::before {
+            transform: rotate(45deg);
+        }
+        .accordion-content {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 25px; }
+        .dual-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+        .tri-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+        .form-group { display: flex; flex-direction: column; }
+        label {
+            font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-secondary);
+        }
+
+        input[type="text"], input[type="email"], input[type="datetime-local"], 
+        input[type="file"], select, textarea {
+            background-color: var(--bg-dark); color: var(--text-primary);
+            border: 1px solid var(--border-color); border-radius: 5px;
+            padding: 12px; font-size: 1rem; font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input[type="file"] { padding: 9px; }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none; border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
+        }
+        textarea { min-height: 150px; resize: vertical; font-family: "Courier New", monospace; }
+
+        .button-group { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 25px; }
+        button {
+            padding: 14px 22px; font-size: 1rem; font-weight: 600;
+            border: none; border-radius: 5px; cursor: pointer;
+            transition: all 0.2s ease; flex-grow: 1;
+        }
+        .btn-generate { background-color: var(--accent-green); color: var(--bg-dark); }
+        .btn-generate:hover { background-color: #008a75; }
+        
+        .btn-send { background-color: var(--accent-purple); color: white; }
+        .btn-send:hover { background-color: #8e44ad; }
+        
+        .btn-print { background-color: var(--accent-red); color: white; display: none; }
+        .btn-print:hover { background-color: #b03a3a; }
+
+        /* --- Signature Pad --- */
+        .sig-pad-container { border: 1px solid var(--border-color); border-radius: 5px; overflow: hidden; }
+        .sig-pad-header { padding: 8px 12px; background-color: #1a1a2e; display: flex; justify-content: space-between; align-items: center; }
+        .sig-pad-header span { font-weight: 600; color: var(--text-secondary); }
+        .sig-pad-header button { background: var(--accent-red); color: white; padding: 4px 8px; font-size: 0.8rem; flex-grow: 0; }
+        canvas.sig-pad { background-color: var(--doc-bg); cursor: crosshair; }
+
+        /* --- Output Document Styling --- */
+        #output-container { margin-top: 40px; display: none; }
+        #roeOutput {
+            background-color: var(--doc-bg); color: var(--doc-text);
+            padding: 50px; border-radius: 5px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            font-family: "Times New Roman", Times, serif; font-size: 12pt;
+            position: relative; overflow: hidden;
+        }
+        
+        #roeOutput[data-watermark]::after {
+            content: attr(data-watermark);
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 100px; font-weight: bold;
+            color: rgba(0, 0, 0, 0.08);
+            pointer-events: none; white-space: nowrap;
+        }
+        #docLogo { max-width: 250px; max-height: 100px; margin-bottom: 20px; }
+        #roeOutput h1 { text-align: center; font-size: 20pt; font-weight: bold; border-bottom: 2px solid #000; color: #000; }
+        #roeOutput h2 { font-size: 16pt; font-weight: bold; border-bottom: 1px solid #ccc; color: #000; }
+        #roeOutput h3 { font-size: 13pt; font-style: italic; border-bottom: none; font-weight: bold; color: #000; }
+        #roeOutput p { line-height: 1.5; margin-bottom: 15px; }
+        #roeOutput .meta-info { background-color: #f9f9f9; border: 1px solid #eee; padding: 15px; border-radius: 5px; margin-bottom: 25px; font-size: 11pt; }
+        #roeOutput pre { background-color: #f4f4f4; border: 1px solid #ddd; border-radius: 5px; padding: 15px; font-family: "Courier New", monospace; white-space: pre-wrap; word-wrap: break-word; font-size: 10pt; }
+        #roeOutput .signatures { margin-top: 50px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; font-family: Arial, Helvetica, sans-serif; page-break-inside: avoid; }
+        #roeOutput .sig-block { border-top: 1px solid #000; padding-top: 10px; }
+        #roeOutput .sig-block img { width: 100%; max-width: 300px; height: auto; }
+
+        /* --- Loader Spinner --- */
+        #loader {
+            display: none;
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9998;
+        }
+        .spinner {
+            position: absolute; top: 50%; left: 50%;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid var(--accent-green);
+            border-radius: 50%;
+            width: 60px; height: 60px;
+            animation: spin 1s linear infinite;
+            margin: -30px 0 0 -30px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- Print Styling (for browser print) --- */
+        @media print {
+            body { background-color: var(--doc-bg); color: var(--doc-text); }
+            .container { box-shadow: none; padding: 0; margin: 0; max-width: 100%; }
+            h1, form, .button-group, #output-container h2 { display: none; }
+            #output-container { display: block; margin: 0; }
+            #roeOutput { box-shadow: none; border-radius: 0; padding: 0; }
+            #roeOutput[data-watermark]::after { position: fixed; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader"><div class="spinner"></div></div>
+
+    <div class="container">
+        <h1>Enterprise Rules of Engagement (RoE) Generator</h1>
+
+        <form id="roeForm">
+            
+            <details open>
+                <summary>1. Project Details</summary>
+                <div class="accordion-content form-grid">
+                    <div class="form-group">
+                        <label for="templateSelector">Load Template</label>
+                        <select id="templateSelector">
+                            <option value="custom">-- Custom Engagement --</option>
+                            <option value="standardWeb">Standard Web App Test</option>
+                            <option value="redTeam">Full Scope Red Team</option>
+                            <option value="cloudPentest">Cloud Pentest (AWS/Azure)</option>
+                        </select>
+                    </div>
+                    <div class="tri-grid">
+                        <div class="form-group">
+                            <label for="clientName">Client Name</label>
+                            <input type="text" id="clientName" value="RuneChat Holdings Inc." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="testerName">Testing Firm Name</label>
+                            <input type="text" id="testerName" value="Nightfury Security" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="projectName">Project Name / SOW ID</label>
+                            <input type="text" id="projectName" value="Q4 2025 External Pentest (SOW-2025-092)" required>
+                        </div>
+                    </div>
+                    <div class="tri-grid">
+                        <div class="form-group">
+                            <label for="docVersion">Document Version</label>
+                            <input type="text" id="docVersion" value="1.0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="docStatus">Document Status</label>
+                            <select id="docStatus" required>
+                                <option value="Draft">Draft</option>
+                                <option value="Awaiting Signature">Awaiting Signature</option>
+                                <option value="Active">Active</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="watermark">Custom Watermark (e.g., DRAFT)</label>
+                            <input type="text" id="watermark" value="CONFIDENTIAL" placeholder="Leave blank for none">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="logoUpload">Company Logo (Optional)</label>
+                        <input type="file" id="logoUpload" accept="image/png, image/jpeg">
+                    </div>
+                </div>
+            </details>
+
+            <details>
+                <summary>2. Engagement Window</summary>
+                <div class="accordion-content form-grid">
+                    <div class="tri-grid">
+                        <div class="form-group">
+                            <label for="startDate">Start Date & Time</label>
+                            <input type="datetime-local" id="startDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">End Date & Time</label>
+                            <input type="datetime-local" id="endDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="allowedTimes">Allowed Testing Times (incl. Timezone)</label>
+                            <input type="text" id="allowedTimes" value="24/7 during the testing window" required>
+                        </div>
+                    </div>
+                </div>
+            </details>
+            
+            <details>
+                <summary>3. Scope, Data, & Methodology</summary>
+                <div class="accordion-content form-grid">
+                    <div class="dual-grid">
+                        <div class="form-group">
+                            <label for="assetCriticality">Asset Criticality</label>
+                            <select id="assetCriticality" required>
+                                <option value="Critical (Production, Core Function)">Critical (Production, Core Function)</option>
+                                <option value="High (Staging, Important Internal)">High (Staging, Important Internal)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="dataSensitivity">Highest Data Sensitivity</label>
+                            <select id="dataSensitivity" required>
+                                <option value="PII (Personally Identifiable Information)">PII (Personally Identifiable Information)</option>
+                                <option value="Financial (PCI, Payment Data)">Financial (PCI, Payment Data)</option>
+                                <option value="Trade Secrets (Source Code, IP)">Trade Secrets (Source Code, IP)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inScope">In-Scope Targets (One per line)</label>
+                        <textarea id="inScope" required># Primary Domains
+https://runechat.com
+https://eldorado.gg
+https://runehall.com
+https://runewager.com
+
+# Wildcard Subdomains
+*.runechat.com
+*.eldorado.gg
+*.runehall.com
+*.runewager.com
+</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="outOfScope">Out-of-Scope Restrictions (One per line)</label>
+                        <textarea id="outOfScope" required>- All forms of Denial of Service (DoS) or Distributed Denial of Service (DDoS).
+- Any testing of third-party vendors (e.g., Cloudflare, AWS, payment processors).
+- Social engineering (phishing, vishing) is strictly prohibited.
+- Exfiltration of sensitive data (PII, user DB). Proof-of-concept is sufficient.
+- Modification or deletion of any data or system configurations.
+</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="allowedMethods">Allowed Methodologies (One per line)</label>
+                        <textarea id="allowedMethods" required>- Open-Source Intelligence (OSINT).
+- Automated & manual vulnerability analysis (OWASP Top 10).
+- Authentication and authorization bypass testing.
+- Business logic flaw analysis.
+- Safe, non-destructive exploitation to gain proof-of-concept.
+</textarea>
+                    </div>
+                </div>
+            </details>
+            
+            <details>
+                <summary>4. Contacts & Whitelisting</summary>
+                <div class="accordion-content form-grid">
+                    <div class="dual-grid">
+                        <fieldset style="border:1px solid var(--border-color); border-radius:5px; padding:15px;">
+                            <legend style="color: var(--text-secondary); padding: 0 5px; margin-left:10px;">Client Contacts</legend>
+                            <div class="form-group">
+                                <label for="clientContactName">Business/Security Contact (Primary)</label>
+                                <input type="text" id="clientContactName" value="DamienMarx" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientContactPhone">Primary Contact Phone (24/7)</label>
+                                <input type="text" id="clientContactPhone" value="(555) 111-2222" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientContactEmail">Primary Contact Email</label>
+                                <input type="email" id="clientContactEmail" value="security@runechat.com" required>
+                            </div>
+                        </fieldset>
+                        <fieldset style="border:1px solid var(--border-color); border-radius:5px; padding:15px;">
+                            <legend style="color: var(--text-secondary); padding: 0 5px; margin-left:10px;">Tester Contacts</legend>
+                            <div class="form-group">
+                                <label for="testerContactName">Lead Tester Contact (Primary)</label>
+                                <input type="text" id="testerContactName" value="[Lead Tester Name]" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="testerContactPhone">Lead Tester Phone (24/7)</label>
+                                <input type="text" id="testerContactPhone" value="(555) 333-4444" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="testerContactEmail">Lead Tester Email</label>
+                                <input type="email" id="testerContactEmail" value="lead@nightfurysec.com" required>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="form-group">
+                        <label for="testerIPs">Tester Source IP(s) (for whitelisting, one per line)</label>
+                        <textarea id="testerIPs" required>198.51.100.50
+198.51.100.51</textarea>
+                    </div>
+                </div>
+            </details>
+
+            <details>
+                <summary>5. Legal & Signatures</summary>
+                <div class="accordion-content form-grid">
+                    <div class="form-group">
+                        <label for="confidentiality">Confidentiality & Data Handling Clause</label>
+                        <textarea id="confidentiality" required>All information discovered during this engagement is the confidential property of the Client. Tester agrees not to disclose this information to any third party without explicit written consent. All Client data will be encrypted at rest on Tester systems and will be securely purged within 30 days of project completion and final report delivery.</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="liability">Limitation of Liability</label>
+                        <textarea id="liability" required>Tester shall not be held liable for any unintended, non-negligent disruption of services that may occur while performing tests within the agreed-upon scope. Client acknowledges that penetration testing carries inherent risks. Tester will make every effort to avoid service disruption.</textarea>
+                    </div>
+                    <div class="dual-grid">
+                        <div class="form-group">
+                            <label for="clientAuthName">Client Authorizing Party (Name & Title)</label>
+                            <input type="text" id="clientAuthName" value="DamienMarx, Owner" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="testerAuthName">Tester Authorizing Party (Name & Title)</label>
+                            <input type="text" id="testerAuthName" value="[Lead Tester Name], Lead Penetration Tester" required>
+                        </div>
+                    </div>
+                    <div class="dual-grid">
+                        <div class="sig-pad-container">
+                            <div class="sig-pad-header">
+                                <span>Client Signature</span>
+                                <button type="button" id="clearClientSig">Clear</button>
+                            </div>
+                            <canvas id="clientSigPad" class="sig-pad" height="150"></canvas>
+                        </div>
+                        <div class="sig-pad-container">
+                            <div class="sig-pad-header">
+                                <span>Tester Signature</span>
+                                <button type="button" id="clearTesterSig">Clear</button>
+                            </div>
+                            <canvas id="testerSigPad" class="sig-pad" height="150"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <div class="button-group">
+                <button type="submit" class="btn-generate">Generate PDF</button>
+                <button type="button" class="btn-send" id="sendButton">Send for Signature (Simulated)</button>
+                <button type="button" class="btn-print" id="printButton">Browser Print (Fallback)</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="output-container">
+        <div id="roeOutput">
+            </div>
+    </div>
+
+    <script>
+        // --- Template Definitions ---
+        const templates = {
+            standardWeb: {
+                inScope: `# Primary Web Applications
+https://app.example.com
+https://api.example.com
+
+# Wildcard Subdomains
+*.example.com`,
+                outOfScope: `- All forms of Denial of Service (DoS).
+- Physical access, Social Engineering.
+- Exfiltration of PII (PoC is sufficient).
+- Any testing of third-party vendors.`,
+                allowedMethods: `- OSINT & Reconnaissance.
+- Manual & Automated Vulnerability Analysis (OWASP Top 10).
+- Authentication & Authorization Bypass.
+- Business Logic Flaw Testing.
+- Safe, non-destructive exploitation.`
+            },
+            redTeam: {
+                inScope: `# Primary Domain (Wildcard)
+*.example.com
+
+# Physical Locations
+- 123 Main St, Anytown, USA
+
+# All employees, contractors, and public-facing assets are in scope.`,
+                outOfScope: `- Intentional destruction of data or property.
+- Actions that would cause physical harm.
+- Direct attacks on C-Level executives (unless specified).
+- Intentional, widespread service disruption (DoS).`,
+                allowedMethods: `- Full-spectrum OSINT, HUMINT, SIGINT.
+- Social Engineering (Phishing, Vishing, Smishing).
+- Physical Access (Lockpicking, tailgating).
+- Network & Application Exploitation.
+- Post-Exploitation (Lateral Movement, PrivEsc).
+- C2 Establishment & Data Exfiltration (controlled).`
+            },
+            cloudPentest: {
+                inScope: `# AWS Account ID
+1234-5678-9012
+
+# Azure Tenant ID
+a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8
+
+# Specific In-Scope Resources
+- S3 Bucket: 'example-prod-data'
+- Azure Resource Group: 'RG-PROD-WEB'
+- All IAM roles prefixed with 'app-'`,
+                outOfScope: `- Attacking the cloud provider's underlying infrastructure.
+- Accessing data belonging to other tenants.
+- Provisioning resources that incur significant cost.
+- All forms of Denial of Service (DoS).`,
+                allowedMethods: `- Cloud configuration review (e.g., IAM, S3, Security Groups).
+- Enumeration of cloud services and endpoints.
+- Exploitation of misconfigured services.
+- Attempted privilege escalation within the cloud tenant.
+- Testing of serverless functions (e.g., Lambda, Azure Functions).`
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Signature Pad Setup ---
+            function setupSignaturePad(canvasId, clearButtonId) {
+                const canvas = document.getElementById(canvasId);
+                const ctx = canvas.getContext('2d');
+                const clearButton = document.getElementById(clearButtonId);
+                let drawing = false;
+                let lastX = 0;
+                let lastY = 0;
+
+                // Set canvas size correctly
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                function getPos(evt) {
+                    const rect = canvas.getBoundingClientRect();
+                    if (evt.touches) {
+                        return { x: evt.touches[0].clientX - rect.left, y: evt.touches[0].clientY - rect.top };
+                    }
+                    return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
+                }
+
+                function draw(e) {
+                    if (!drawing) return;
+                    e.preventDefault();
+                    const pos = getPos(e);
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = 2;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(lastX, lastY);
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.stroke();
+                    [lastX, lastY] = [pos.x, pos.y];
+                }
+                function startDrawing(e) {
+                    drawing = true;
+                    const pos = getPos(e);
+                    [lastX, lastY] = [pos.x, pos.y];
+                }
+                function stopDrawing() { drawing = false; }
+                
+                canvas.addEventListener('mousedown', startDrawing);
+                canvas.addEventListener('mousemove', draw);
+                canvas.addEventListener('mouseup', stopDrawing);
+                canvas.addEventListener('mouseout', stopDrawing);
+                canvas.addEventListener('touchstart', startDrawing, { passive: false });
+                canvas.addEventListener('touchmove', draw, { passive: false });
+                canvas.addEventListener('touchend', stopDrawing);
+
+                clearButton.addEventListener('click', () => {
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                });
+                return canvas;
+            }
+            const clientSigCanvas = setupSignaturePad('clientSigPad', 'clearClientSig');
+            const testerSigCanvas = setupSignaturePad('testerSigPad', 'clearTesterSig');
+            
+            // --- Template Loader ---
+            document.getElementById('templateSelector').addEventListener('change', (e) => {
+                const template = templates[e.target.value];
+                if (template) {
+                    document.getElementById('inScope').value = template.inScope;
+                    document.getElementById('outOfScope').value = template.outOfScope;
+                    document.getElementById('allowedMethods').value = template.allowedMethods;
+                }
+            });
+
+            // --- Form Submission ---
+            const roeForm = document.getElementById('roeForm');
+            const outputDiv = document.getElementById('roeOutput');
+            const printButton = document.getElementById('printButton');
+            const sendButton = document.getElementById('sendButton');
+            const loader = document.getElementById('loader');
+
+            roeForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                generateAndSavePDF();
+            });
+            
+            async function generateAndSavePDF() {
+                loader.style.display = 'block';
+                
+                // 1. Get Logo Data URL
+                const logoFile = document.getElementById('logoUpload').files[0];
+                let logoDataUrl = '';
+                if (logoFile) {
+                    logoDataUrl = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.readAsDataURL(logoFile);
+                    });
+                }
+                
+                // 2. Populate the hidden output div
+                populateOutputDiv(logoDataUrl);
+                
+                // 3. Use html2canvas to render the div
+                const { jsPDF } = window.jspdf;
+                const canvas = await html2canvas(outputDiv, {
+                    scale: 2, // Higher scale for better quality
+                    useCORS: true
+                });
+                
+                const imgData = canvas.toDataURL('image/png');
+                
+                // 4. Create PDF
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                
+                // 5. Save PDF
+                const projectName = document.getElementById('projectName').value;
+                pdf.save(`RoE_${projectName.replace(/ /g, '_')}_v${document.getElementById('docVersion').value}.pdf`);
+                
+                loader.style.display = 'none';
+                alert('PDF generated successfully!');
+            }
+            
+            function populateOutputDiv(logoDataUrl) {
+                // Get all form values
+                const clientName = document.getElementById('clientName').value;
+                const testerName = document.getElementById('testerName').value;
+                const projectName = document.getElementById('projectName').value;
+                const docVersion = document.getElementById('docVersion').value;
+                const docStatus = document.getElementById('docStatus').value;
+                const watermark = document.getElementById('watermark').value;
+                const assetCriticality = document.getElementById('assetCriticality').value;
+                const dataSensitivity = document.getElementById('dataSensitivity').value;
+                const startDate = new Date(document.getElementById('startDate').value).toLocaleString();
+                const endDate = new Date(document.getElementById('endDate').value).toLocaleString();
+                const allowedTimes = document.getElementById('allowedTimes').value;
+                const inScope = document.getElementById('inScope').value;
+                const outOfScope = document.getElementById('outOfScope').value;
+                const allowedMethods = document.getElementById('allowedMethods').value;
+                const testerIPs = document.getElementById('testerIPs').value;
+                const clientContactName = document.getElementById('clientContactName').value;
+                const clientContactPhone = document.getElementById('clientContactPhone').value;
+                const clientContactEmail = document.getElementById('clientContactEmail').value;
+                const testerContactName = document.getElementById('testerContactName').value;
+                const testerContactPhone = document.getElementById('testerContactPhone').value;
+                const testerContactEmail = document.getElementById('testerContactEmail').value;
+                const confidentiality = document.getElementById('confidentiality').value;
+                const liability = document.getElementById('liability').value;
+                const clientAuthName = document.getElementById('clientAuthName').value;
+                const testerAuthName = document.getElementById('testerAuthName').value;
+                const clientSigData = clientSigCanvas.toDataURL('image/png');
+                const testerSigData = testerSigCanvas.toDataURL('image/png');
+
+                // Set watermark
+                outputDiv.setAttribute('data-watermark', watermark.toUpperCase());
+
+                // Build HTML output
+                outputDiv.innerHTML = `
+                    ${logoDataUrl ? `<img src="${logoDataUrl}" id="docLogo" alt="Company Logo">` : ''}
+                    <h1>Rules of Engagement (RoE): Confidential</h1>
+                    <div class="meta-info">
+                        <strong>Client:</strong> ${clientName}<br>
+                        <strong>Testing Firm:</strong> ${testerName}<br>
+                        <strong>Project SOW:</strong> ${projectName}<br>
+                        <strong>Version:</strong> ${docVersion} | <strong>Status:</strong> ${docStatus}
+                    </div>
+
+                    <h2>1. Overview</h2>
+                    <p>This document defines the official terms, scope, and limitations for the penetration testing engagement...</p>
+
+                    <h2>2. Asset & Data Profile</h2>
+                    <p>
+                        <strong>Asset Criticality:</strong> ${assetCriticality}<br>
+                        <strong>Highest Data Sensitivity:</strong> ${dataSensitivity}
+                    </p>
+
+                    <h2>3. Engagement Window</h2>
+                    <p>
+                        <strong>Start Date:</strong> ${startDate}<br>
+                        <strong>End Date:</strong> ${endDate}<br>
+                        <strong>Allowed Times:</strong> ${allowedTimes}
+                    </p>
+
+                    <h2>4. Scope Definition</h2>
+                    <h3>4.1. In-Scope Targets</h3>
+                    <pre>${inScope.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre>
+                    <h3>4.2. Out-of-Scope Restrictions</h3>
+                    <pre>${outOfScope.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre>
+                    <h3>4.3. Allowed Methodologies</h3>
+                    <pre>${allowedMethods.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre>
+
+                    <h2>5. Tester Information & Whitelisting</h2>
+                    <p>The Client agrees to whitelist the following source IP addresses:</p>
+                    <pre>${testerIPs.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre>
+
+                    <h2>6. Communication & Emergency Contacts</h2>
+                    <h3>Client Contacts (${clientName}):</h3>
+                    <p>
+                        <strong>Business/Security Contact:</strong> ${clientContactName}<br>
+                        <strong>Phone (24/7):</strong> ${clientContactPhone}<br>
+                        <strong>Email:</strong> ${clientContactEmail}
+                    </p>
+                    <h3>Tester Contacts (${testerName}):</h3>
+                    <p>
+                        <strong>Lead Tester Contact:</strong> ${testerContactName}<br>
+                        <strong>Phone (24/7):</strong> ${testerContactPhone}<br>
+                        <strong>Email:</strong> ${testerContactEmail}
+                    </p>
+                    
+                    <h2>7. Legal & Data Handling</h2>
+                    <h3>7.1. Confidentiality & Data Handling</h3>
+                    <p>${confidentiality.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
+                    <h3>7.2. Limitation of Liability</h3>
+                    <p>${liability.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
+
+                    <h2>8. Authorization & Signatures</h2>
+                    <p>This document serves as the formal authorization... Both parties agree to these terms.</p>
+                    
+                    <div class="signatures">
+                        <div class="sig-block">
+                            <img src="${clientSigData}" alt="Client Signature"><br>
+                            <strong>For ${clientName} (Client):</strong>
+                            <p>Name: ${clientAuthName.split(',')[0]}</p>
+                            <p>Title: ${clientAuthName.split(',')[1] || ''}</p>
+                            <p>Date: ${new Date().toLocaleDateString()}</p>
+                        </div>
+                        <div class="sig-block">
+                            <img src="${testerSigData}" alt="Tester Signature"><br>
+                            <strong>For ${testerName} (Tester):</strong>
+                            <p>Name: ${testerAuthName.split(',')[0]}</p>
+                            <p>Title: ${testerAuthName.split(',')[1] || ''}</p>
+                            <p>Date: ${new Date().toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                `;
+                
+                // Make the output visible (needed for html2canvas)
+                document.getElementById('output-container').style.display = 'block';
+            }
+
+            // --- Other Buttons ---
+            printButton.addEventListener('click', () => {
+                populateOutputDiv(null); // Populate without logo for printing
+                window.print();
+            });
+
+            sendButton.addEventListener('click', ()_ => {
+                const projectName = document.getElementById('projectName').value;
+                const secureLink = `https://securesign.nightfurysec.com/doc/${Math.random().toString(36).substring(2, 15)}`;
+                
+                navigator.clipboard.writeText(secureLink).then(() => {
+                    alert(`Secure Link for "${projectName}" Copied to Clipboard!\n\n${secureLink}`);
+                }, () => {
+                    alert('Could not copy to clipboard. Here is the link:\n\n' + secureLink);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

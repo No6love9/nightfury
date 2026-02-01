@@ -1,0 +1,627 @@
+• http://admin.runewager.com/.env
+• http://admin.runewager.com/.git/config
+• http://admin.runewager.com/.svn/entries
+• http://admin.runewager.com/.htaccess
+• http://admin.runewager.com/web.config
+• http://admin.runewager.com/robots.txt
+• http://admin.runewager.com/sitemap.xml
+• http://admin.runewager.com/crossdomain.xml
+• http://admin.runewager.com/phpinfo.php
+• http://admin.runewager.com/wp-config.php
+• http://admin.runewager.com/config.php
+• http://admin.runewager.com/config.json
+• http://admin.runewager.com/credentials.json
+• http://admin.runewager.com/docker-compose.yml
+• http://admin.runewager.com/traefik.yml
+• http://admin.runewager.com/admin
+• http://admin.runewager.com/backup
+• http://admin.runewager.com/sql
+• http://admin.runewager.com/db.sql
+• http://admin.runewager.com/dump.sql
+• http://admin.runewager.com/backup.zip
+• http://admin.runewager.com/.aws/credentials
+• https://api.runehall.com/robots.txt
+• https://support.runewager.com/robots.txt
+• https://support.runewager.com/sitemap.xml
+• https://staging.runewager.com/robots.txt
+• https://staging.runewager.com/sitemap.xml
+• https://staging.runewager.com/crossdomain.xml
+• https://staging.runewager.com/wp-config.php
+• https://staging.runewager.com/config.php
+• https://staging.runewager.com/config.json
+• https://staging.runewager.com/credentials.json
+• https://staging.runewager.com/docker-compose.yml
+• https://staging.runewager.com/traefik.yml
+• https://staging.runewager.com/admin
+• https://staging.runewager.com/backup
+• https://staging.runewager.com/sql
+• https://staging.runewager.com/db.sql
+• https://staging.runewager.com/dump.sql
+• https://staging.runewager.com/backup.zip
+• https://staging.runewager.com/.aws/credentials
+• https://www.discord.runewager.com/.env
+• https://www.discord.runewager.com/.git/config
+• https://www.discord.runewager.com/.svn/entries
+• https://www.discord.runewager.com/.htaccess
+• https://www.discord.runewager.com/web.config
+• https://www.discord.runewager.com/robots.txt
+• https://www.discord.runewager.com/sitemap.xml
+• https://www.discord.runewager.com/crossdomain.xml
+• https://www.discord.runewager.com/phpinfo.php
+• https://www.discord.runewager.com/wp-config.php
+• https://www.discord.runewager.com/config.php
+• https://www.discord.runewager.com/config.json
+• https://www.discord.runewager.com/credentials.json
+• https://www.discord.runewager.com/docker-compose.yml
+• https://www.discord.runewager.com/traefik.yml
+• https://www.discord.runewager.com/admin
+• https://www.discord.runewager.com/backup
+• https://www.discord.runewager.com/sql
+• https://www.discord.runewager.com/db.sql
+• https://www.discord.runewager.com/dump.sql
+• https://www.discord.runewager.com/backup.zip
+• https://www.discord.runewager.com/.aws/credentials
+• https://discord.runewager.com/.env
+• https://discord.runewager.com/.git/config
+• https://discord.runewager.com/.svn/entries
+• https://discord.runewager.com/.htaccess
+• https://discord.runewager.com/web.config
+• https://discord.runewager.com/robots.txt
+• https://discord.runewager.com/sitemap.xml
+• https://discord.runewager.com/crossdomain.xml
+• https://discord.runewager.com/phpinfo.php
+• https://discord.runewager.com/wp-config.php
+• https://discord.runewager.com/config.php
+• https://discord.runewager.com/config.json
+• https://discord.runewager.com/credentials.json
+• https://discord.runewager.com/docker-compose.yml
+• https://discord.runewager.com/traefik.yml
+• https://discord.runewager.com/admin
+• https://discord.runewager.com/backup
+• https://discord.runewager.com/sql
+• https://discord.runewager.com/db.sql
+• https://discord.runewager.com/dump.sql
+• https://discord.runewager.com/backup.zip
+• https://discord.runewager.com/.aws/credentials
+• https://runechat.com/admin
+• https://admin.runewager.com/.env
+• https://admin.runewager.com/.git/config
+• https://admin.runewager.com/.svn/entries
+• https://admin.runewager.com/.htaccess
+• https://admin.runewager.com/web.config
+• https://admin.runewager.com/robots.txt
+• https://admin.runewager.com/sitemap.xml
+• https://admin.runewager.com/crossdomain.xml
+• https://admin.runewager.com/phpinfo.php
+• https://admin.runewager.com/wp-config.php
+• https://admin.runewager.com/config.php
+• https://admin.runewager.com/config.json
+• https://admin.runewager.com/credentials.json
+• https://admin.runewager.com/docker-compose.yml
+• https://admin.runewager.com/traefik.yml
+• https://admin.runewager.com/admin
+• https://admin.runewager.com/backup
+• https://admin.runewager.com/sql
+• https://admin.runewager.com/db.sql
+• https://admin.runewager.com/dump.sql
+• https://admin.runewager.com/backup.zip
+• https://admin.runewager.com/.aws/credentials
+• https://runehall.com/robots.txt
+• https://runehall.com/sitemap.xml
+• https://runehall.com/crossdomain.xml
+2. Exposed API Endpoints (Warnings and Critical Vulnerabilities) These URLs represent API endpoints that are openly accessible, often with warnings about potential information leaks or critical findings if associated with Swagger UI.
+• http://admin.runewager.com/api/v1/user
+• http://admin.runewager.com/api/v1/admin
+• http://admin.runewager.com/api/v1/config
+• http://admin.runewager.com/graphql
+• http://admin.runewager.com/rest/v1/users
+• http://admin.runewager.com/oauth/token
+• http://admin.runewager.com/v2/api-docs
+• http://admin.runewager.com/swagger-ui.html (Critical: Swagger UI exposed)
+• http://admin.runewager.com/swagger.json (Critical: Swagger UI exposed)
+• http://admin.runewager.com/actuator
+• http://admin.runewager.com/wp-json/wp/v2/users
+• http://api.runehall.com/api/v1/user
+• http://api.runehall.com/api/v1/admin
+• http://api.runehall.com/api/v1/config
+• http://api.runehall.com/graphql
+• http://api.runehall.com/rest/v1/users
+• http://api.runehall.com/oauth/token
+• http://api.runehall.com/v2/api-docs
+• http://api.runehall.com/swagger-ui.html (Critical: Swagger UI exposed)
+• http://api.runehall.com/swagger.json (Critical: Swagger UI exposed)
+• http://api.runehall.com/actuator
+• http://api.runehall.com/wp-json/wp/v2/users
+• http://sockets.runehall.com/api/v1/user
+• http://sockets.runehall.com/api/v1/admin
+• http://sockets.runehall.com/api/v1/config
+• http://sockets.runehall.com/graphql
+• http://sockets.runehall.com/rest/v1/users
+• http://sockets.runehall.com/oauth/token
+• http://sockets.runehall.com/v2/api-docs
+• http://sockets.runehall.com/swagger-ui.html (Critical: Swagger UI exposed)
+• http://sockets.runehall.com/swagger.json (Critical: Swagger UI exposed)
+• http://sockets.runehall.com/actuator
+• http://sockets.runehall.com/wp-json/wp/v2/users
+• http://420.runehall.com/api/v1/user
+• http://420.runehall.com/api/v1/admin
+• http://420.runehall.com/api/v1/config
+• http://420.runehall.com/graphql
+• http://420.runehall.com/rest/v1/users
+• http://420.runehall.com/oauth/token
+• http://420.runehall.com/v2/api-docs
+• http://420.runehall.com/swagger-ui.html (Critical: Swagger UI exposed)
+• http://420.runehall.com/swagger.json (Critical: Swagger UI exposed)
+• http://420.runehall.com/actuator
+• http://420.runehall.com/wp-json/wp/v2/users
+• http://support.runewager.com/api/v1/user
+• http://support.runewager.com/api/v1/admin
+• http://support.runewager.com/api/v1/config
+• http://support.runewager.com/graphql
+• http://support.runewager.com/rest/v1/users
+• http://support.runewager.com/oauth/token
+• http://support.runewager.com/v2/api-docs
+• http://support.runewager.com/swagger-ui.html (Critical: Swagger UI exposed)
+• http://support.runewager.com/swagger.json (Critical: Swagger UI exposed)
+• http://support.runewager.com/actuator
+• http://support.runewager.com/wp-json/wp/v2/users
+• http://wss.runehall.com/api/v1/user
+• http://wss.runehall.com/api/v1/admin
+• http://wss.runehall.com/api/v1/config
+• http://wss.runehall.com/graphql
+• http://wss.runehall.com/rest/v1/users
+• http://wss.runehall.com/oauth/token
+• http://wss.runehall.com/v2/api-docs
+• http://wss.runehall.com/swagger-ui.html (Critical: Swagger UI exposed)
+• http://wss.runehall.com/swagger.json (Critical: Swagger UI exposed)
+• http://wss.runehall.com/actuator
+• http://wss.runehall.com/wp-json/wp/v2/users
+• http://69.runehall.com/api/v1/user
+• http://69.runehall.com/api/v1/admin
+• http://69.runehall.com/api/v1/config
+• http://69.runehall.com/graphql
+• http://69.runehall.com/rest/v1/users
+• http://69.runehall.com/oauth/token
+• http://69.runehall.com/v2/api-docs
+• http://69.runehall.com/swagger-ui.html (Critical: Swagger UI exposed)
+• http://69.runehall.com/swagger.json (Critical: Swagger UI exposed)
+• http://69.runehall.com/actuator
+• http://69.runehall.com/wp-json/wp/v2/users
+• http://cdn.runehall.com/api/v1/user
+• http://cdn.runehall.com/api/v1/admin
+• http://cdn.runehall.com/api/v1/config
+• http://cdn.runehall.com/graphql
+• http://cdn.runehall.com/rest/v1/users
+• http://cdn.runehall.com/oauth/token
+• http://cdn.runehall.com/v2/api-docs
+• http://cdn.runehall.com/swagger-ui.html (Critical: Swagger UI exposed)
+• http://cdn.runehall.com/swagger.json (Critical: Swagger UI exposed)
+• http://cdn.runehall.com/actuator
+• http://cdn.runehall.com/wp-json/wp/v2/users
+• http://blog.runehall.com/api/v1/user
+• http://blog.runehall.com/api/v1/admin
+• http://blog.runehall.com/api/v1/config
+• http://blog.runehall.com/graphql
+• http://blog.runehall.com/rest/v1/users
+• http://blog.runehall.com/oauth/token
+• http://blog.runehall.com/v2/api-docs
+• http://blog.runehall.com/swagger-ui.html (Critical: Swagger UI exposed)
+• http://blog.runehall.com/swagger.json (Critical: Swagger UI exposed)
+• http://blog.runehall.com/actuator
+• http://blog.runehall.com/wp-json/wp/v2/users
+• https://support.runewager.com/graphql
+• https://support.runewager.com/actuator
+• http://crash.runehall.com/api/v1/user
+• http://crash.runehall.com/api/v1/admin
+• http://crash.runehall.com/api/v1/config
+• http://crash.runehall.com/graphql
+• http://crash.runehall.com/rest/v1/users
+• http://crash.runehall.com/oauth/token
+• http://crash.runehall.com/v2/api-docs
+• http://crash.runehall.com/swagger-ui.html (Critical: Swagger UI exposed)
+• http://crash.runehall.com/swagger.json (Critical: Swagger UI exposed)
+• http://crash.runehall.com/actuator
+• http://crash.runehall.com/wp-json/wp/v2/users
+• http://jbl.runehall.com/api/v1/user
+• http://jbl.runehall.com/api/v1/admin
+• http://jbl.runehall.com/api/v1/config
+• http://jbl.runehall.com/graphql
+• http://jbl.runehall.com/rest/v1/users
+• http://jbl.runehall.com/oauth/token
+• http://jbl.runehall.com/v2/api-docs
+• http://jbl.runehall.com/swagger-ui.html (Critical: Swagger UI exposed)
+• http://jbl.runehall.com/swagger.json (Critical: Swagger UI exposed)
+• http://jbl.runehall.com/actuator
+• http://jbl.runehall.com/wp-json/wp/v2/users
+• https://staging.runewager.com/api/v1/user
+• https://staging.runewager.com/api/v1/admin
+• https://staging.runewager.com/api/v1/config
+• https://staging.runewager.com/graphql
+• https://staging.runewager.com/rest/v1/users
+• https://staging.runewager.com/oauth/token
+• https://staging.runewager.com/v2/api-docs
+• https://staging.runewager.com/swagger-ui.html (Critical: Swagger UI exposed)
+• https://staging.runewager.com/swagger.json (Critical: Swagger UI exposed)
+• https://staging.runewager.com/actuator
+• https://staging.runewager.com/wp-json/wp/v2/users
+• https://www.discord.runewager.com/api/v1/user
+• https://www.discord.runewager.com/api/v1/admin
+• https://www.discord.runewager.com/api/v1/config
+• https://www.discord.runewager.com/graphql
+• https://www.discord.runewager.com/rest/v1/users
+• https://www.discord.runewager.com/oauth/token
+• https://www.discord.runewager.com/v2/api-docs
+• https://www.discord.runewager.com/swagger-ui.html (Critical: Swagger UI exposed)
+• https://www.discord.runewager.com/swagger.json (Critical: Swagger UI exposed)
+• https://www.discord.runewager.com/actuator
+• https://www.discord.runewager.com/wp-json/wp/v2/users
+• https://blog.runehall.com/wp-json/wp/v2/users
+• https://discord.runewager.com/api/v1/user
+• https://discord.runewager.com/api/v1/admin
+• https://discord.runewager.com/api/v1/config
+• https://discord.runewager.com/graphql
+• https://discord.runewager.com/rest/v1/users
+• https://discord.runewager.com/oauth/token
+• https://discord.runewager.com/v2/api-docs
+• https://discord.runewager.com/swagger-ui.html (Critical: Swagger UI exposed)
+• https://discord.runewager.com/swagger.json (Critical: Swagger UI exposed)
+• https://discord.runewager.com/actuator
+• https://discord.runewager.com/wp-json/wp/v2/users
+• http://runehall.com/api/v1/user
+• http://runehall.com/api/v1/admin
+• http://runehall.com/api/v1/config
+• http://runehall.com/graphql
+• http://runehall.com/rest/v1/users
+• http://runehall.com/oauth/token
+• http://runehall.com/v2/api-docs
+• http://runehall.com/swagger-ui.html (Critical: Swagger UI exposed)
+• http://runehall.com/swagger.json (Critical: Swagger UI exposed)
+• http://runehall.com/actuator
+• http://runehall.com/wp-json/wp/v2/users
+• https://admin.runewager.com/api/v1/user
+• https://admin.runewager.com/api/v1/admin
+• https://admin.runewager.com/api/v1/config
+• https://admin.runewager.com/graphql
+• https://admin.runewager.com/rest/v1/users
+• https://admin.runewager.com/oauth/token
+• https://admin.runewager.com/v2/api-docs
+• https://admin.runewager.com/swagger-ui.html (Critical: Swagger UI exposed)
+• https://admin.runewager.com/swagger.json (Critical: Swagger UI exposed)
+• https://admin.runewager.com/actuator
+• https://admin.runewager.com/wp-json/wp/v2/users
+• https://runewager.com/api/v1/user
+• https://runewager.com/api/v1/admin
+• https://runewager.com/api/v1/config
+• https://runewager.com/graphql
+• https://runewager.com/rest/v1/users
+• https://runewager.com/oauth/token
+• https://runewager.com/v2/api-docs
+• https://runewager.com/swagger-ui.html (Critical: Swagger UI exposed)
+• https://runewager.com/swagger.json (Critical: Swagger UI exposed)
+• https://runewager.com/actuator
+• https://runewager.com/wp-json/wp/v2/users
+3. Potential IDOR Vulnerabilities These API endpoints are specifically identified as having potential Insecure Direct Object Reference (IDOR) vulnerabilities, indicating that user enumeration or unauthorized access to other user data might be possible.
+• https://discord.runewager.com/api/v1/user/12345
+• https://discord.runewager.com/rest/v1/users/12345
+• https://discord.runewager.com/wp-json/wp/v2/users/12345
+• https://www.discord.runewager.com/api/v1/user/12345
+• https://www.discord.runewager.com/rest/v1/users/12345
+• https://www.discord.runewager.com/wp-json/wp/v2/users/12345
+4. Social Engineering and Auto-Execution Lure URLs These are URLs designed to deliver payloads or engage users in social engineering attacks, intentionally made accessible.
+• http://{domain}:{port}/claim (General pattern for auto-execute server)
+• http://reward-center.org:8080/ (Example auto-server URL)
+• http://{lhost}:{lport}/ps (PowerShell payload download from social engineering server)
+• http://example.com/game.html (Example Discord-friendly injection lure)
+• https://example.com/game.html (Example Discord-friendly injection lure)
+• https://example.com/tool.html (Example Slack-friendly injection lure)
+• https://example.com/news.html (Example generic injection lure)
+• Discord DM claim URL (sent to user, exact URL generated dynamically)
+• /submit_form (Phishing form submission endpoint)
+5. URLs with Information Leakage / Misconfiguration from Nikto Scans These URLs are mentioned in Nikto scan reports as having missing security headers or revealing system information.
+• https://www.runehall.com/ (Missing X-Frame-Options, Strict-Transport-Security, X-Content-Type-Options; uncommon headers; Content-Encoding "deflate" vulnerable to BREACH)
+• /1NrHPTue.AP (Uncommon headers: cf-mitigated, origin-agent-cluster, critical-ch, cross-origin-embedder-policy, accept-ch)
+• runehall.com (Missing X-Frame-Options, X-Content-Type-Options; uncommon headers)
+• /wLZuQ1gQ.xml+ (Uncommon headers: critical-ch, cross-origin-embedder-policy, accept-ch, origin-agent-cluster, cf-mitigated)
+• /cdn-cgi/trace (Cloudflare trace CGI found, may leak system information)
+6. Target URLs for Penetration Testing Tools These URLs are explicitly identified as targets for various scanning and exploitation tools like Nmap, Gobuster, Nikto, and SQLMap. While not "exposed" in the sense of a vulnerability, their mention as targets indicates they are subject to assessment.
+• https://www.runehall.com/
+• https://www.runehall.com/?view=autth
+• http://runehall.com
+• http://wss.runehall.com
+• http://runechat.com
+• https://runehall.com
+7. Other Monitored / Scanned URLs These include various subdomains and their associated IPs and ports that were identified through reconnaissance and may represent part of the attack surface.
+• runehall.com (IPs: 104.26.9.187, 104.26.8.187, 172.67.75.219; Ports: 443, 8080, 80, 8443)
+• support.runehall.com (IPs: 172.67.75.219, 104.26.9.187, 104.26.8.187; Ports: 80, 8080, 8443, 443)
+• www.runehall.com (IPs: 104.26.8.187, 104.26.9.187, 172.67.75.219; Ports: 80, 8080, 8443, 443)
+• 420.runehall.com (IPs: 104.26.8.187, 104.26.9.187, 172.67.75.219; Ports: 443, 80, 8443, 8080)
+• jbl.runehall.com (IPs: 104.26.8.187, 172.67.75.219, 104.26.9.187; Ports: 443, 8080, 80, 8443)
+• crash.runehall.com (IPs: 104.26.9.187, 104.26.8.187, 172.67.75.219; Ports: 8443, 80, 8080, 443)
+• runehall.runehall.com (IPs: 104.26.9.187, 172.67.75.219, 104.26.8.187; Ports: 8443, 443, 8080, 80)
+• cdn.runehall.com (IPs: 104.26.9.187, 104.26.8.187, 172.67.75.219; Ports: 80, 443, 8080, 8443)
+• blog.runehall.com (IPs: 104.26.8.187, 104.26.9.187, 172.67.75.219; Ports: 80, 8443, 8080, 443)
+• sockets.runehall.com (IPs: 104.26.9.187, 104.26.8.187, 172.67.75.219; Ports: 8080, 8443, 80, 443)
+• sunrise.runehall.com (IPs: 104.26.9.187, 104.26.8.187, 172.67.75.219; Ports: 8080, 8443, 443, 80)
+• api.runehall.com (IPs: 104.26.9.187, 104.26.8.187, 172.67.75.219; Ports: 8443, 443, 8080, 80)
+• wss.runehall.com (IPs: 104.26.9.187, 172.67.75.219, 104.26.8.187; Ports: 8443, 443, 8080, 80)
+• 69.runehall.com (IPs: 172.67.75.219, 104.26.8.187, 104.26.9.187; Ports: 8443, 443, 80, 8080)
+• secure.runechat.com (IP: 209.141.38.102; Ports: unspecified)
+• new.runechat.com (IPs: 104.21.80.1, 104.21.96.1, 104.21.48.1; Ports: 80, 443, 8080, 8443)
+• www.runechat.com (IPs: 104.21.16.1, 104.21.32.1, 104.21.112.1; Ports: 8080, 8443, 80, 443)
+• dev.runechat.com (IP: 209.141.38.102; Ports: unspecified)
+• chat.runechat.com (IP: 209.141.38.102; Ports: unspecified)
+• runechat.com (IPs: 104.21.32.1, 104.21.64.1, 104.21.80.1; Ports: 80, 443, 8080, 8443)
+• test.runechat.com (IPs: 104.21.112.1, 104.21.96.1; Ports: 443, 8080, 8443, 80)
+• old.runechat.com (IPs: 104.21.32.1, 104.21.16.1, 104.21.112.1; Ports: 80, 8443, 443)
+• http://runewager.com (Primary Domain, Web Server Active)
+• http://admin.runewager.com (Admin subdomain detected)
+• http://api.runewager.com (HTTP 404)
+• https://api.runewager.com (HTTP 404)
+• http://support.runewager.com (Web Server Active)
+• http://discord.runewager.com (Web Server Active)
+• http://www.discord.runewager.com (Web Server Active)
+• http://runehall.com (Web Server Active)
+• http://api.runehall.com (Web Server Active - 403 Forbidden)
+• http://sockets.runehall.com (Web Server Active)
+• http://wss.runehall.com (Web Server Active)
+• http://420.runehall.com (Web Server Active)
+• https://420.runehall.com (HTTP 521)
+• http://69.runehall.com (Web Server Active)
+• https://69.runehall.com (HTTP 530)
+• https://blog.runehall.com (Web Server Active)
+• http://cdn.runehall.com (Web Server Active)
+• https://cdn.runehall.com (HTTP 404)
+• http://crash.runehall.com (Web Server Active)
+• https://crash.runehall.com (HTTP 502)
+• http://jbl.runehall.com (Web Server Active)
+• https://jbl.runehall.com (HTTP 530)
+• http://test.runechat.com (Web Server Active)
+• https://test.runechat.com (HTTP 404)
+• http://staging.runewager.com (Web Server Active)
+
+URL	MIME Type	From	To	Captures	Duplicates	Uniques
+http://runehall.com/	text/html	Jun 21, 2013	Aug 28, 2025	74	18	56
+http://runehall.com/a/BoooYa	text/html	Dec 16, 2024	Dec 16, 2024	2	0	2
+http://runehall.com/assets/index.f5144f28.js	text/html	Jan 2, 2025	Jan 2, 2025	2	0	2
+http://runehall.com/favicon.ico	warc/revisit	Mar 19, 2016	Jul 4, 2025	32	26	6
+http://runehall.com/hall-of-fame	warc/revisit	Feb 14, 2025	Jul 26, 2025	3	0	3
+http://runehall.com/robots.txt	warc/revisit	Mar 5, 2016	May 14, 2025	33	28	5
+https://runehall.com/.well-known/	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?id=10731&u=cGVrYWJvb28%3D&view=user-stats	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?id=20519&u=TW9rMTAzNA%3D%3D&view=user-stats	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?id=25432&u=R29kS2luZw%3D%3D&view=user-stats	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?id=25670&u=QXR1bEt1bWFy&view=user-stats	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?id=25779&u=QmVuYmFsbGVy&view=user-stats	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?tab=Tip&view=bank	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?u=QmxpZ2h0ZWRCZXRz&view=user-stats&id=25134	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?u=Ymxha2VibG9vZDk%3D&view=user-stats&id=2816	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=auth	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=bank&tab=Deposit	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=bank&tab=Poker+Chips	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=bank&tab=Withdraw	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=chat-rules	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=claim-bonus	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=race&id=131	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=rh-swap	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=search-game	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=user-stats&id=16406&u=Q2FsbE1lTWF5YmU%3D	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=user-stats&id=20201&u=Z2ltZXNvbWVsdWNr	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=user-stats&id=20519	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=user-stats&id=229&u=dHVyYm9jYXQ%3D	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=user-stats&id=25429	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=user-stats&id=2596	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=user-stats&id=2596&u=cHJv	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=user-stats&id=26186&u=VHdEZXBheTc%3D	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=user-stats&id=26273	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=user-stats&id=3501	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=user-stats&id=420&u=Q2hlYXBHUA%3D%3D	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=user-stats&id=6451&u=TWluaV9Tb2Rh	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=user-stats&id=8888	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/?view=vip&tab=Rakeback	text/html	Jul 26, 2025	Jul 26, 2025	1	0	1
+https://runehall.com/.well-known/ai-plugin.json	text/html	Jun 10, 2023	May 14, 2025	14	0	14
+https://runehall.com/.well-known/assetlinks.json	text/html	Jun 10, 2023	May 14, 2025	14	0	14
+https://runehall.com/.well-known/dnt-policy.txt	text/html	Jun 10, 2023	May 14, 2025	14	0	14
+https://runehall.com/.well-known/gpc.json	text/html	Jun 10, 2023	May 14, 2025	15	0	15
+https://runehall.com/.well-known/nodeinfo	text/html	Jun 10, 2023	May 14, 2025	15	0	15
+https://runehall.com/.well-known/openid-configuration	text/html	Jun 10, 2023	May 15, 2025	13	0	13
+https://runehall.com/.well-known/security.txt	text/html	Jun 10, 2023	May 14, 2025	15	0	15
+ht
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+tps://runehall.com/.well-known/trust.txt	text/html	Jun 10, 2023	May 14, 2025	13	0	13
+https://runehall.com/?view=claim-bonus&code=HALLOWEEN150	text/html	Nov 2, 2024	Nov 2, 2024	1	0	1
+https://runehall.com/?view=rh-swap	text/html	Jun 1, 2024	Jun 1, 2024	1	0	1
+https://runehall.com/?view=vip	text/html	Jul 25, 2023	Jul 25, 2023	1	0	1
+https://runehall.com/a/BestGuides
+
