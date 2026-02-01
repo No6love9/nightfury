@@ -6,13 +6,16 @@ class BasicRecon(BaseModule):
         super().__init__(framework)
         self.name = "basic_recon"
         self.description = "Perform basic network reconnaissance on a target."
+        self.options = {"target": ""}
 
     def run(self, args):
-        if not args:
+        target = self.options.get('target')
+        if args:
+            target = args[0]
+            
+        if not target:
             print("Usage: use basic_recon <target>")
             return
-        
-        target = args[0]
         self.log(f"Starting basic recon on {target}...")
         
         try:

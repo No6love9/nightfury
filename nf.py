@@ -10,7 +10,7 @@ from core.framework import NightfuryFramework
 if __name__ == "__main__":
     try:
         app = NightfuryFramework()
-        app.start_cli()
+        app.start_cli(sys.argv[1:])
     except KeyboardInterrupt:
         print("\n[*] Exiting...")
         sys.exit(0)

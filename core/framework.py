@@ -81,8 +81,13 @@ class NightfuryFramework:
         print(f"       =[ Nightfury v2.0-dev                           ]")
         print(f" + -- --=[ {len(self.modules)} modules loaded                           ]\n")
 
-    def start_cli(self):
+    def start_cli(self, args=None):
         self.load_modules()
+        
+        if args and len(args) > 0:
+            self.handle_batch_mode(args)
+            return
+
         self.print_banner()
         
         # Setup tab completion
@@ -177,8 +182,32 @@ class NightfuryFramework:
     def handle_run(self):
         if self.current_module:
             print(f"[*] Launching {self.current_module.name}...")
-            self.current_module.run([])
+            # Pass options as args if needed by older modules
+            run_args = list(self.current_module.options.values()) if self.current_module.options else []
+            self.current_module.run(run_args)
         else: print("[-] No module selected.")
+
+    def handle_batch_mode(self, args):
+        import argparse
+        parser = argparse.ArgumentParser(description='Nightfury Batch Mode')
+        parser.add_argument('--target', help='Target for the operation')
+        parser.add_argument('--module', default='recon/basic_recon', help='Module to run (default: recon/basic_recon)')
+        
+        parsed_args, unknown = parser.parse_known_args(args)
+        
+        if parsed_args.module in self.modules:
+            module = self.modules[parsed_args.module]
+            if parsed_args.target:
+                # Set target in options if it exists
+                if 'target' in module.options:
+                    module.options['target'] = parsed_args.target
+                
+                print(f"[*] Automated Execution: {parsed_args.module} -> {parsed_args.target}")
+                module.run([parsed_args.target])
+            else:
+                print("[-] Batch mode requires --target")
+        else:
+            print(f"[-] Module {parsed_args.module} not found.")
 
 if __name__ == "__main__":
     nf = NightfuryFramework()
