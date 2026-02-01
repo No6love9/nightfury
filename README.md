@@ -1,33 +1,37 @@
-# NightFury Framework
+# NightFury Framework v1.2
 
-**Version 2.0 | Professional Red Team Operations Platform**
-
----
-
-![NightFury Banner](https://raw.githubusercontent.com/manus-team/nightfury-framework/main/assets/nightfury_banner.png)
+**Professional Red Team Operations Platform**
 
 ---
 
 ## Overview
 
-**NightFury** is a comprehensive, clandestine framework for professional red team operations, designed for elite security teams and educational purposes. It provides a full-scope solution for penetration testing, OSINT reconnaissance, web exploitation, and command & control (C2) operations, with a strong emphasis on operational security (OPSEC) and automation.
+**NightFury** is a comprehensive, clandestine framework for professional red team operations. It provides a full-scope solution for penetration testing, OSINT reconnaissance, web exploitation, and command & control (C2) operations.
 
-Built for **WSL2 Kali Linux** with seamless Windows integration, NightFury combines sophisticated tooling with an intuitive, modular architecture, making it accessible for both seasoned operators and students.
+The framework has been recently enhanced with a **modular architecture** that allows for dynamic loading of modules, a unified CLI, and better organization of the extensive toolset.
 
 ---
 
 ## Key Features
 
-- **Automated Setup:** One-command installation with an interactive setup wizard for personalized configuration.
-- **AI-Powered Intelligence:** Gemini API integration for automated analysis, C2 beacon generation, and decision support.
-- **Advanced OSINT:** Comprehensive OSINT engine with automated Google Dorking, domain profiling, and subdomain enumeration.
-- **Modular Architecture:** Independent modules for C2, OSINT, web exploitation, and network operations, with fallback mechanisms.
-- **SHEBA Access Control:** Secure, role-based access control with codeword authentication (Admin, Operator, Student).
-- **OPSEC First:** Built-in forensic countermeasures, log sanitization, and configurable OPSEC rules.
+- **Modular Architecture**: Easily add new modules to the `modules/` directory.
+- **Dynamic Loading**: Modules are loaded at runtime.
+- **Unified CLI**: A central command-line interface to manage all operations.
+- **Auto-dependency Management**: Automatically installs required Python packages.
+- **Integrated OSINT & Exploitation**: Includes tools for reconnaissance, payload generation, and web exploitation.
 - **WSL2 Integration:** Seamless file and network integration between Kali Linux and Windows host.
-- **Automated Reporting:** Real-time export of pentesting results to multiple formats (TXT, CSV, JSON, PDF).
-- **Web Interface:** Real-time dashboard for system monitoring, module control, and interactive terminal.
-- **Error Resilience:** Comprehensive error handling with automatic recovery and fallback strategies.
+
+---
+
+## Directory Structure
+
+- `main.py`: The primary entry point for the framework.
+- `core/`: Core framework logic and base classes.
+- `modules/`: Functional modules organized by category (recon, exploit, c2).
+- `scripts/`: Standalone scripts and legacy tools.
+- `web/`: Web-based tools and interfaces.
+- `data/`: Logs, reports, and configuration files.
+- `backups/`: Original versions of scripts and files.
 
 ---
 
@@ -36,7 +40,7 @@ Built for **WSL2 Kali Linux** with seamless Windows integration, NightFury combi
 ### Prerequisites
 
 - **OS:** Kali Linux (recommended) or other Debian-based distribution
-- **Environment:** WSL2 (recommended) or native Linux
+- **Python:** 3.8+
 - **Permissions:** `sudo` access for installation
 
 ### Installation
@@ -44,63 +48,32 @@ Built for **WSL2 Kali Linux** with seamless Windows integration, NightFury combi
 1.  **Clone the repository:**
 
     ```bash
-    git clone https://github.com/D4M13N/nightfury.git
+    git clone https://github.com/no6love9/nightfury.git
     cd nightfury
     ```
 
-2.  **Run the setup script:**
+2.  **Run the framework:**
 
     ```bash
-    sudo bash scripts/setup.sh
+    python3 main.py
     ```
 
-    The setup script will guide you through an interactive configuration process to tailor the framework to your needs.
-
-3.  **Source your shell:**
-
-    ```bash
-    source ~/.bashrc
-    ```
-
-### Quick Start
-
-- **View all commands:**
-
-  ```bash
-  nightfury --help
-  ```
-
-- **Run a health check:**
-
-  ```bash
-  nightfury health
-  ```
-
-- **Start the web interface:**
-
-  ```bash
-  nightfury web
-  ```
-
-  Access the dashboard at `https://localhost:7443`.
-
-- **Run an OSINT scan:**
-
-  ```bash
-  nightfury osint example.com
-  ```
+    The framework will automatically install any missing dependencies on the first run.
 
 ---
 
-## Documentation
+## Available Modules
 
-For detailed information on installation, usage, and architecture, please refer to the `/docs` directory:
+### Reconnaissance
+- `basic_recon`: Network scanning and port discovery.
+- `osint`: Username and domain OSINT search.
 
-- **[Installation Guide](./docs/INSTALL.md)**
-- **[Usage Guide](./docs/USAGE.md)**
-- **[Architecture Overview](./docs/ARCHITECTURE.md)**
-- **[Security Policy](./docs/SECURITY.md)**
-- **[Contribution Guidelines](./docs/CONTRIBUTING.md)**
+### Exploitation
+- `payload_gen`: Multi-platform reverse shell generator.
+- `web_exploit`: SQLi and XSS vulnerability testing.
+
+### Command & Control
+- `c2_server`: Simple Flask-based C2 beacon receiver.
 
 ---
 
@@ -114,4 +87,4 @@ NightFury is intended for authorized security testing and educational purposes o
 
 ## License
 
-This project is licensed under the **MIT License**. See the [LICENSE](./LICENSE) file for details.
+This project is licensed under the **MIT License**.
