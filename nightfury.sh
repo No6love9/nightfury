@@ -32,14 +32,34 @@ print_banner() {
     ██║ ╚████║██║╚██████╔╝██║  ██║   ██║   ██║     ╚██████╔╝██║  ██║   ██║   
     ╚═╝  ╚═══╝╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   
                         Professional Red Team Operations Framework
-                                    Version 2.4 (C2-Enabled)
+                                    Version 2.5 (Crack-Prep Enabled)
 EOF
 }
 
 print_info() { echo -e "${BLUE}[*]${NC} $1"; }
 print_success() { echo -e "${GREEN}[+]${NC} $1"; }
 print_error() { echo -e "${RED}[!]${NC} $1"; }
-print_warning() { echo -e "${YELLOW}[!]${NC} $1"; }
+
+# Command: Crack-Prep
+cmd_crackprep() {
+    local action="${1:-wordlist}"
+    export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
+    case "$action" in
+        wordlist)
+            print_info "Generating unique password wordlist..."
+            python3 -c "from utilities.crack_prep import CrackPrep; cp = CrackPrep(); print('\n'.join(cp.extract_passwords()))" > "${NIGHTFURY_DATA}/exports/harvested_wordlist.txt"
+            print_success "Wordlist saved to: data/exports/harvested_wordlist.txt"
+            ;;
+        john)
+            print_info "Formatting for John the Ripper..."
+            python3 -c "from utilities.crack_prep import CrackPrep; cp = CrackPrep(); cp.format_for_john('${NIGHTFURY_DATA}/exports/john_hashes.txt')"
+            print_success "John format saved to: data/exports/john_hashes.txt"
+            ;;
+        *)
+            print_error "Usage: nightfury.sh crackprep [wordlist|john]"
+            ;;
+    esac
+}
 
 # Command: C2 Server
 cmd_c2() {
@@ -60,11 +80,7 @@ cmd_c2() {
             tail -f "${NIGHTFURY_LOGS}/harvested_creds.json"
             ;;
         status)
-            if pgrep -f "c2_server.py" > /dev/null; then
-                print_success "C2 Server is RUNNING"
-            else
-                print_warning "C2 Server is STOPPED"
-            fi
+            pgrep -f "c2_server.py" > /dev/null && print_success "C2 Server is RUNNING" || print_warning "C2 Server is STOPPED"
             ;;
         *)
             print_error "Usage: nightfury.sh c2 [start|stop|logs|status]"
@@ -72,30 +88,22 @@ cmd_c2() {
     esac
 }
 
-# Command: Injection Engine
-cmd_inject() {
-    local type="${1:-login_modal}"
-    print_info "Generating Injection Payload: $type"
-    export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
-    python3 -c "from modules.exploit_pro.injection_engine import InjectionEngine; e = InjectionEngine(); print(e.get_injector_script('$type'))"
-}
-
 # Command: Help
 cmd_help() {
     cat << EOF
-NightFury C2-Enabled - Command Reference
+NightFury Crack-Prep Enabled - Command Reference
 
 CORE:
   status              Show framework status
   c2 [start|stop|logs] Manage C2 Collection Server
+  crackprep [wordlist|john] Prepare data for password cracking
   inject [type]       Generate Overlay/Chat Injection payloads
   runehall <cmd>      RuneHall.com Specialized Plugin
   panic               Emergency cleanup and exit
 
 EXAMPLES:
-  nightfury.sh c2 start
-  nightfury.sh c2 logs
-  nightfury.sh inject login_modal
+  nightfury.sh crackprep wordlist
+  nightfury.sh crackprep john
 EOF
 }
 
@@ -106,6 +114,7 @@ main() {
     shift || true
     case "$command" in
         c2) cmd_c2 "$@" ;;
+        crackprep) cmd_crackprep "$@" ;;
         inject) cmd_inject "$@" ;;
         status) cmd_status "$@" ;;
         help|--help|-h) print_banner; cmd_help ;;
