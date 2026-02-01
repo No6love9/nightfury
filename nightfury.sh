@@ -32,362 +32,91 @@ print_banner() {
     ██║ ╚████║██║╚██████╔╝██║  ██║   ██║   ██║     ╚██████╔╝██║  ██║   ██║   
     ╚═╝  ╚═══╝╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   
                         Professional Red Team Operations Framework
-                                    Version 2.0
+                                    Version 2.1 (Compact)
 EOF
 }
 
-print_info() {
-    echo -e "${BLUE}[*]${NC} $1"
-}
-
-print_success() {
-    echo -e "${GREEN}[+]${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[!]${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}[!]${NC} $1"
-}
+print_info() { echo -e "${BLUE}[*]${NC} $1"; }
+print_success() { echo -e "${GREEN}[+]${NC} $1"; }
+print_error() { echo -e "${RED}[!]${NC} $1"; }
+print_warning() { echo -e "${YELLOW}[!]${NC} $1"; }
 
 # Command: Status
 cmd_status() {
     print_info "NightFury Framework Status"
-    echo ""
-    
-    # Environment detection
     python3 "${NIGHTFURY_HOME}/core/detection_engine.py" -q | python3 -m json.tool
 }
 
-# Command: Web Interface
-cmd_web() {
-    print_info "Starting NightFury Web Interface..."
-    
-    # Check if already running
-    if pgrep -f "nightfury.*server.py" > /dev/null; then
-        print_warning "Web interface is already running"
-        print_info "Access at: https://localhost:7443"
-        return
-    fi
-    
-    # Start web server
-    cd "${NIGHTFURY_HOME}/web_interface"
-    python3 server.py &
-    
-    sleep 2
-    
-    print_success "Web interface started"
-    print_info "Access at: https://localhost:7443"
-    print_info "Default credentials: admin / nightfury2024"
-}
-
-# Command: Stop
-cmd_stop() {
-    print_info "Stopping NightFury services..."
-    
-    pkill -f "nightfury.*server.py" 2>/dev/null || true
-    
-    print_success "All services stopped"
-}
-
-# Command: OSINT
-cmd_osint() {
+# Command: DNS Bypass
+cmd_bypass() {
     local domain="$1"
-    
     if [[ -z "$domain" ]]; then
-        print_error "Usage: nightfury.sh osint <domain>"
+        print_error "Usage: nightfury.sh bypass <domain>"
         return 1
     fi
-    
-    print_info "Running OSINT reconnaissance on: $domain"
-    
-    # Google Dorking
-    print_info "Generating Google Dorks..."
-    python3 "${NIGHTFURY_HOME}/modules/osint_engine/google_dorking.py" \
-        "$domain" \
-        --report \
-        --format json
-    
-    print_success "OSINT reconnaissance complete"
-    print_info "Results saved to: ${NIGHTFURY_DATA}/exports/"
+    print_info "Starting Cloudflare Bypass & DNS Deep-dive for: $domain"
+    python3 "${NIGHTFURY_HOME}/modules/recon_pro/dns_bypass.py" "$domain"
 }
 
-# Command: Dork
-cmd_dork() {
-    local domain="$1"
-    shift
-    
-    if [[ -z "$domain" ]]; then
-        print_error "Usage: nightfury.sh dork <domain> [options]"
-        return 1
-    fi
-    
-    python3 "${NIGHTFURY_HOME}/modules/osint_engine/google_dorking.py" \
-        "$domain" \
-        "$@"
+# Command: XSS Generate
+cmd_xss() {
+    print_info "Generating Aggressive XSS Payloads..."
+    python3 "${NIGHTFURY_HOME}/modules/exploit_pro/xss_generator.py"
 }
 
 # Command: BeEF Integration
 cmd_beef() {
     local module="$1"
-    shift
-    
     if [[ -z "$module" ]]; then
-        print_error "Usage: nightfury.sh beef <module> [options]"
+        print_error "Usage: nightfury.sh beef <module>"
         echo "Available modules: pretty_theft, internal_ip, port_scanner, visited_domains"
         return 1
     fi
-    
-    print_info "Generating BeEF-integrated payload: $module"
-    
-    # Set PYTHONPATH to include the project root for module imports
+    print_info "Generating BeEF payload: $module"
     export PYTHONPATH="${NIGHTFURY_HOME}:${PYTHONPATH}"
-    
-    python3 -c "
-import sys
-import os
-sys.path.append('${NIGHTFURY_HOME}')
-from modules.beef_integration.beef_core import BeEFIntegration
-b = BeEFIntegration(base_path='${NIGHTFURY_HOME}/modules/beef_integration/payloads')
-try:
-    print(b.get_payload('$module'))
-except Exception as e:
-    print(f'Error: {e}', file=sys.stderr)
-    sys.exit(1)
-"
-}
-
-# Command: Auth
-cmd_auth() {
-    local subcmd="$1"
-    shift
-    
-    python3 "${NIGHTFURY_HOME}/core/auth_manager.py" "$subcmd" "$@"
+    python3 -c "import sys; sys.path.append('${NIGHTFURY_HOME}'); from modules.beef_integration.beef_core import BeEFIntegration; b = BeEFIntegration(base_path='${NIGHTFURY_HOME}/modules/beef_integration/payloads'); print(b.get_payload('$module'))"
 }
 
 # Command: Health Check
 cmd_health() {
-    print_info "Running comprehensive health check..."
-    
-    python3 "${NIGHTFURY_HOME}/core/detection_engine.py" \
-        --output "${NIGHTFURY_LOGS}/health_check_$(date +%Y%m%d_%H%M%S).json"
-    
-    local exit_code=$?
-    
-    if [[ $exit_code -eq 0 ]]; then
-        print_success "Health check passed"
-    else
-        print_warning "Health check completed with warnings"
-    fi
-    
-    return $exit_code
-}
-
-# Command: Logs
-cmd_logs() {
-    local log_type="${1:-all}"
-    
-    case "$log_type" in
-        error|errors)
-            tail -f "${NIGHTFURY_LOGS}/errors.log"
-            ;;
-        recovery)
-            tail -f "${NIGHTFURY_LOGS}/recovery.log"
-            ;;
-        critical)
-            tail -f "${NIGHTFURY_LOGS}/critical.log"
-            ;;
-        all|*)
-            tail -f "${NIGHTFURY_LOGS}"/*.log
-            ;;
-    esac
-}
-
-# Command: Update
-cmd_update() {
-    print_info "Updating NightFury framework..."
-    
-    cd "${NIGHTFURY_HOME}"
-    
-    if [[ -d .git ]]; then
-        git pull
-        print_success "Framework updated"
-    else
-        print_warning "Not a git repository - manual update required"
-    fi
-}
-
-# Command: Backup
-cmd_backup() {
-    local backup_file="${1:-nightfury_backup_$(date +%Y%m%d_%H%M%S).tar.gz}"
-    
-    print_info "Creating backup..."
-    
-    tar -czf "$backup_file" \
-        -C "${NIGHTFURY_HOME}" \
-        --exclude='logs/*' \
-        --exclude='data/exports/*' \
-        --exclude='.git' \
-        config/ core/ modules/ web_interface/ utilities/ docs/
-    
-    print_success "Backup created: $backup_file"
-}
-
-# Command: Restore
-cmd_restore() {
-    local backup_file="$1"
-    
-    if [[ -z "$backup_file" ]] || [[ ! -f "$backup_file" ]]; then
-        print_error "Usage: nightfury.sh restore <backup_file>"
-        return 1
-    fi
-    
-    print_warning "This will restore configuration from backup"
-    read -p "Continue? [y/N] " -n 1 -r
-    echo
-    
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        print_info "Restore cancelled"
-        return 0
-    fi
-    
-    print_info "Restoring from backup..."
-    
-    tar -xzf "$backup_file" -C "${NIGHTFURY_HOME}"
-    
-    print_success "Restore complete"
-}
-
-# Command: Clean
-cmd_clean() {
-    print_warning "This will remove logs and temporary files"
-    read -p "Continue? [y/N] " -n 1 -r
-    echo
-    
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        print_info "Clean cancelled"
-        return 0
-    fi
-    
-    print_info "Cleaning logs and temporary files..."
-    
-    rm -f "${NIGHTFURY_LOGS}"/*.log
-    rm -f /tmp/nightfury_*
-    
-    print_success "Clean complete"
+    print_info "Running health check..."
+    python3 "${NIGHTFURY_HOME}/core/detection_engine.py"
 }
 
 # Command: Help
 cmd_help() {
     cat << EOF
+NightFury Compact - Command Reference
 
-NightFury Framework - Command Reference
-
-Usage: nightfury.sh [command] [options]
-
-CORE COMMANDS:
-  status              Show framework status and environment info
-  health              Run comprehensive health check
-  web                 Start web interface (https://localhost:7443)
-  stop                Stop all NightFury services
-
-OSINT COMMANDS:
-  osint <domain>      Run full OSINT reconnaissance
-  dork <domain>       Generate Google Dorks for domain
-                      Options: -c <categories> -f <format> -r (report)
-  beef <module>       Generate integrated BeEF payload (OSINT/Exploit)
-                      Modules: pretty_theft, internal_ip, port_scanner, visited_domains
-
-AUTHENTICATION:
-  auth login <user> <pass> [--codeword SHEBA]
-  auth add <user> <pass> <role> --created-by <admin>
-  auth list           List all operators
-  auth passwd <user> <old> <new>
-  auth disable <user>
-  auth enable <user>
-
-SYSTEM MANAGEMENT:
-  logs [type]         Tail logs (error|recovery|critical|all)
-  update              Update framework from repository
-  backup [file]       Create configuration backup
-  restore <file>      Restore from backup
-  clean               Remove logs and temporary files
+CORE:
+  status              Show framework status
+  health              Run health check
+  bypass <domain>     Cloudflare Bypass & DNS Deep-dive
+  xss                 Generate aggressive XSS payloads
+  beef <module>       Generate BeEF-integrated payloads
+  panic               Emergency cleanup and exit
 
 EXAMPLES:
-  nightfury.sh status
-  nightfury.sh osint example.com
-  nightfury.sh dork example.com -c sensitive_files -r
+  nightfury.sh bypass target.com
+  nightfury.sh xss
   nightfury.sh beef pretty_theft
-  nightfury.sh auth login admin nightfury2024 --codeword SHEBA
-  nightfury.sh web
-  nightfury.sh logs error
-
-For detailed documentation, see: ${NIGHTFURY_HOME}/docs/
-
 EOF
 }
 
 # Main command dispatcher
 main() {
-    # Create necessary directories
     mkdir -p "${NIGHTFURY_LOGS}" "${NIGHTFURY_DATA}/exports" "${NIGHTFURY_DATA}/reports"
-    
     local command="${1:-help}"
     shift || true
-    
     case "$command" in
-        status)
-            cmd_status "$@"
-            ;;
-        web)
-            cmd_web "$@"
-            ;;
-        stop)
-            cmd_stop "$@"
-            ;;
-        osint)
-            cmd_osint "$@"
-            ;;
-        dork)
-            cmd_dork "$@"
-            ;;
-        beef)
-            cmd_beef "$@"
-            ;;
-        auth)
-            cmd_auth "$@"
-            ;;
-        health)
-            cmd_health "$@"
-            ;;
-        logs)
-            cmd_logs "$@"
-            ;;
-        update)
-            cmd_update "$@"
-            ;;
-        backup)
-            cmd_backup "$@"
-            ;;
-        restore)
-            cmd_restore "$@"
-            ;;
-        clean)
-            cmd_clean "$@"
-            ;;
-        help|--help|-h)
-            print_banner
-            cmd_help
-            ;;
-        *)
-            print_error "Unknown command: $command"
-            print_info "Run 'nightfury.sh help' for usage information"
-            exit 1
-            ;;
+        status) cmd_status "$@" ;;
+        bypass) cmd_bypass "$@" ;;
+        xss) cmd_xss "$@" ;;
+        beef) cmd_beef "$@" ;;
+        health) cmd_health "$@" ;;
+        help|--help|-h) print_banner; cmd_help ;;
+        *) print_error "Unknown command: $command"; exit 1 ;;
     esac
 }
 
-# Run main
 main "$@"
