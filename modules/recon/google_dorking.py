@@ -4,14 +4,13 @@ import time
 import json
 import random
 import urllib.parse
+import requests
 from datetime import datetime
 from typing import List, Dict, Optional, Any
 from pathlib import Path
+from core.base_module import BaseModule
 
-# Assuming a search tool is available for execution
-# from tools import search # Placeholder for actual search tool integration
-
-class GoogleDorkEngine:
+class GoogleDorkEngine(BaseModule):
     """Advanced Google Dorking with OPSEC-aware queries and execution capabilities"""
     
     # Comprehensive dork templates organized by category
@@ -108,24 +107,15 @@ class GoogleDorkEngine:
             'site:linkedin.com intitle:"{domain}" "current" | "former"',
             'site:{domain} intext:"employee" | intext:"staff" | intext:"team"',
             'site:{domain} inurl:about | inurl:team | inurl:contact',
-            'site:{domain} intext:"@gmail.com" | intext:"@yahoo.com"' # Looking for personal emails on corporate sites
+            'site:{domain} intext:"@gmail.com" | intext:"@yahoo.com"'
         ],
-
-        'development_artifacts': [
-            'site:{domain} inurl:.git/config | inurl:.svn/entries',
-            'site:{domain} inurl:wp-config.php.bak | inurl:web.config.bak',
-            'site:{domain} intext:"dump.sql" | intext:"database.sql" filetype:sql'
-        ],
-
-        'exposed_apis': [
-            'site:{domain} inurl:api | inurl:rest | inurl:graphql',
-            'site:{domain} intext:"swagger ui" | intext:"openapi"',
-            'site:{domain} intext:"api_key" | intext:"token" filetype:json | filetype:txt'
-        ]
     }
     
-    def __init__(self, output_dir: str = "/home/ubuntu/nightfury/data/exports"):
-        self.output_dir = Path(output_dir)
+    def __init__(self, framework):
+        super().__init__(framework)
+        self.name = "google_dorking"
+        self.description = "Advanced Google Dorking module for automated recon."
+        self.output_dir = Path("/home/ubuntu/nightfury/data/exports")
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.results: List[Dict[str, Any]] = []
         self.user_agents = [
@@ -135,202 +125,82 @@ class GoogleDorkEngine:
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0'
         ]
     
-    def generate_dorks(
-        self,
-        domain: str,
-        categories: Optional[List[str]] = None
-    ) -> List[Dict[str, str]]:
-        """
-        Generate Google dork queries for a domain
-        
-        Args:
-            domain: Target domain
-            categories: Specific categories to generate (None = all)
-            
-        Returns:
-            List of dork queries with metadata
-        """
+    def generate_dorks(self, domain: str, categories: Optional[List[str]] = None) -> List[Dict[str, str]]:
         if categories is None:
             categories = list(self.DORK_TEMPLATES.keys())
         
         dorks = []
-        
         for category in categories:
             if category not in self.DORK_TEMPLATES:
                 continue
             
             templates = self.DORK_TEMPLATES[category]
-            
             for template in templates:
                 dork_query = template.format(domain=domain)
                 dorks.append({
                     'category': category,
                     'query': dork_query,
-                    'url': self._build_google_url(dork_query),
-                    'encoded_url': self._build_google_url(dork_query, encode=True)
+                    'url': f"https://www.google.com/search?q={urllib.parse.quote_plus(dork_query)}"
                 })
-        
         return dorks
     
-    def _build_google_url(self, query: str, encode: bool = False) -> str:
-        """Build Google search URL"""
-        if encode:
-            query = urllib.parse.quote_plus(query)
-        return f"https://www.google.com/search?q={query}"
-    
     def execute_dorks(self, domain: str, categories: Optional[List[str]] = None) -> List[Dict[str, Any]]:
-        """
-        Executes generated Google dorks and collects results using the search tool.
-        
-        Args:
-            domain: Target domain.
-            categories: Specific categories of dorks to execute (None = all).
-            
-        Returns:
-            A list of dictionaries, each containing dork query and search results.
-        """
         all_dorks = self.generate_dorks(domain, categories)
         executed_results = []
 
-        print(f"[*] Executing {len(all_dorks)} Google dorks for {domain}...")
+        self.log(f"Executing {len(all_dorks)} Google dorks for {domain}...")
 
         for dork_info in all_dorks:
             query = dork_info['query']
-            print(f"    - Running dork: {query}")
+            self.log(f"Running dork: {query}")
             try:
-                # Integration with search engine (simulated via requests for this module)
-                # In a real operational environment, this would use the framework's search tool
                 headers = {'User-Agent': random.choice(self.user_agents)}
-                search_url = f"https://www.google.com/search?q={urllib.parse.quote_plus(query)}"
+                search_url = dork_info['url']
                 
-                # We perform a real request to check for connectivity and basic results
-                # Note: In a real red-team scenario, we'd use proxies to avoid CAPTCHAs
+                # Perform a real request
                 resp = requests.get(search_url, headers=headers, timeout=10)
+                
+                # Extract potential results from the HTML (simplified)
+                found_links = re.findall(r'href="/url\?q=(https?://[^&]+)', resp.text)
                 
                 executed_results.append({
                     'dork_query': query,
                     'category': dork_info['category'],
                     'status_code': resp.status_code,
-                    'results': [f"Found {len(resp.text)} bytes of data"] if resp.status_code == 200 else []
+                    'links': found_links[:5] # Top 5 links
                 })
-                time.sleep(random.uniform(1, 3)) # Simulate delay for opsec
+                # Random delay to avoid CAPTCHA
+                time.sleep(random.uniform(2, 5))
             except Exception as e:
-                print(f"[!] Error executing dork '{query}': {e}")
+                self.log(f"Error executing dork '{query}': {e}", "error")
                 executed_results.append({
                     'dork_query': query,
                     'category': dork_info['category'],
                     'error': str(e),
-                    'results': []
+                    'links': []
                 })
         
         self.results.extend(executed_results)
         return executed_results
 
-    def export_dorks(
-        self,
-        domain: str,
-        categories: Optional[List[str]] = None,
-        format: str = 'txt'
-    ) -> str:
-        """
-        Export dork queries to file
+    def run(self, args):
+        if not args:
+            print("Usage: use google_dorking <domain> [category]")
+            return
         
-        Args:
-            domain: Target domain
-            categories: Categories to include
-            format: Output format (txt, json, csv)
-            
-        Returns:
-            Path to exported file
-        """
-        dorks = self.generate_dorks(domain, categories)
+        domain = args[0]
+        category = [args[1]] if len(args) > 1 else None
         
+        print(f"[*] Starting Google Dorking for: {domain}")
+        results = self.execute_dorks(domain, category)
+        
+        print(f"\n[+] Dorking complete. Found results for {len([r for r in results if r['links']])} queries.")
+        
+        # Save results
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"dorks_{domain}_{timestamp}.{format}"
-        output_path = self.output_dir / filename
-        
-        if format == 'txt':
-            self._export_txt(dorks, output_path)
-        elif format == 'json':
-            self._export_json(dorks, output_path)
-        elif format == 'csv':
-            self._export_csv(dorks, output_path)
-        else:
-            raise ValueError(f"Unsupported format: {format}")
-        
-        return str(output_path)
-    
-    def _export_txt(self, dorks: List[Dict], output_path: Path) -> None:
-        """Export dorks to text file"""
-        with open(output_path, 'w') as f:
-            f.write(f"# Google Dorks Generated: {datetime.now()}\n")
-            f.write(f"# Total Queries: {len(dorks)}\n\n")
-            
-            current_category = None
-            for dork in dorks:
-                if dork['category'] != current_category:
-                    current_category = dork['category']
-                    f.write(f"\n## {current_category.upper().replace('_', ' ')}\n\n")
-                
-                f.write(f"{dork['query']}\n")
-                f.write(f"URL: {dork['url']}\n\n")
-    
-    def _export_json(self, dorks: List[Dict], output_path: Path) -> None:
-        """Export dorks to JSON file"""
-        data = {
-            'generated_at': datetime.now().isoformat(),
-            'total_queries': len(dorks),
-            'dorks': dorks
-        }
-        
-        with open(output_path, 'w') as f:
-            json.dump(data, f, indent=2)
-    
-    def _export_csv(self, dorks: List[Dict], output_path: Path) -> None:
-        """Export dorks to CSV file"""
-        import csv
-        
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=['category', 'query', 'url'])
-            writer.writeheader()
-            writer.writerows(dorks)
-    
-    def get_dork_statistics(self, domain: str) -> Dict[str, Any]:
-        """
-        Get statistics about generated dorks
-        """
-        dorks = self.generate_dorks(domain)
-        
-        category_counts = {}
-        for dork in dorks:
-            cat = dork['category']
-            category_counts[cat] = category_counts.get(cat, 0) + 1
-        
-        return {
-            'total_dorks': len(dorks),
-            'categories': len(category_counts),
-            'dorks_per_category': category_counts,
-            'domain': domain
-        }
+        filename = f"dorks_{domain}_{timestamp}.json"
+        with open(filename, 'w') as f:
+            json.dump(results, f, indent=4)
+        print(f"[*] Results saved to {filename}")
 
-if __name__ == "__main__":
-    engine = GoogleDorkEngine()
-    test_domain = "example.com"
-    print(f"[*] Generating dorks for {test_domain}...")
-    generated_dorks = engine.generate_dorks(test_domain)
-    print(f"[+] Generated {len(generated_dorks)} dorks.")
-    # for dork in generated_dorks:
-    #     print(f"  - {dork['category']}: {dork['query']}")
-
-    print(f"\n[*] Executing dorks for {test_domain}...")
-    executed_results = engine.execute_dorks(test_domain)
-    print(f"[+] Executed {len(executed_results)} dorks.")
-    # for result in executed_results:
-    #     print(f"  - Dork: {result['dork_query']}")
-    #     print(f"    Results: {len(result['results'])} items")
-
-    # Export results
-    export_path_json = engine.export_dorks(test_domain, format='json')
-    print(f"[+] Dorks exported to: {export_path_json}")
-    export_path_txt = engine.export_dorks(test_domain, format='txt')
-    print(f"[+] Dorks exported to: {export_path_txt}")
+import re # Needed for re.findall

@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+import socket
 from core.base_module import BaseModule
 
 class AIRecon(BaseModule):
@@ -22,7 +23,7 @@ class AIRecon(BaseModule):
         target = args[0]
         self.log(f"Starting AI-driven recon on {target}...")
         
-        # 1. Gather basic data (simulated for this implementation)
+        # 1. Gather basic data
         basic_data = self._gather_basic_data(target)
         
         # 2. Analyze with AI
@@ -32,8 +33,7 @@ class AIRecon(BaseModule):
         self._report_findings(target, analysis)
 
     def _gather_basic_data(self, target):
-        """Gathers initial data for AI analysis from other framework components."""
-        # Integration with existing modules
+        """Gathers initial data for AI analysis."""
         data = {
             "domain": target,
             "subdomains": [],
@@ -41,10 +41,7 @@ class AIRecon(BaseModule):
             "open_ports": []
         }
         
-        # In a real scenario, we'd pull from the framework's shared state or database
-        # For now, we use a more realistic discovery approach
         try:
-            import socket
             data["ip"] = socket.gethostbyname(target)
             # Add common subdomains to check
             common = ['www', 'api', 'dev', 'staging', 'vpn', 'mail']
@@ -65,14 +62,26 @@ class AIRecon(BaseModule):
             self.log("OpenAI API key not found. Using local heuristic analysis.", "warning")
             return self._heuristic_analysis(data)
 
-        prompt = f"Analyze the following reconnaissance data for security vulnerabilities and prioritize attack vectors: {json.dumps(data)}"
+        prompt = f"""
+        Analyze the following reconnaissance data for security vulnerabilities and prioritize attack vectors.
+        Provide a structured report with:
+        1. Potential Vulnerabilities
+        2. Priority Level (High/Medium/Low)
+        3. Recommended Attack Vectors
+        4. Next Steps for Reconnaissance
+        
+        Data: {json.dumps(data)}
+        """
         
         try:
             from openai import OpenAI
             client = OpenAI()
             response = client.chat.completions.create(
                 model="gpt-4.1-mini",
-                messages=[{"role": "user", "content": prompt}]
+                messages=[
+                    {"role": "system", "content": "You are an expert red team security analyst."},
+                    {"role": "user", "content": prompt}
+                ]
             )
             return response.choices[0].message.content
         except Exception as e:
@@ -81,10 +90,21 @@ class AIRecon(BaseModule):
 
     def _heuristic_analysis(self, data):
         """Fallback heuristic analysis."""
-        priority = "HIGH" if "dev" in str(data['subdomains']) else "MEDIUM"
-        return f"Heuristic Analysis: Priority {priority}. Focus on outdated PHP versions and exposed dev subdomains."
+        priority = "HIGH" if any(sub in str(data['subdomains']) for sub in ['dev', 'staging', 'api']) else "MEDIUM"
+        analysis = f"Heuristic Analysis for {data['domain']}:\n"
+        analysis += f"- Priority: {priority}\n"
+        analysis += f"- Identified IP: {data.get('ip', 'Unknown')}\n"
+        analysis += f"- Subdomains Found: {', '.join(data['subdomains']) if data['subdomains'] else 'None'}\n"
+        analysis += "- Recommendations: Focus on discovered subdomains and check for common web vulnerabilities (XSS, SQLi)."
+        return analysis
 
     def _report_findings(self, target, analysis):
         print(f"\n--- AI Reconnaissance Report: {target} ---")
         print(analysis)
         print("-" * 40)
+        
+        # Save report
+        filename = f"ai_report_{target}.txt"
+        with open(filename, "w") as f:
+            f.write(analysis)
+        print(f"[*] AI Report saved to {filename}")

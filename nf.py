@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 import sys
 import os
+from core.env_loader import load_env
+
+# Load environment variables
+load_env()
 
 # Add the current directory to sys.path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
