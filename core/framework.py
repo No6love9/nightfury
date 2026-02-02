@@ -75,11 +75,11 @@ class NightfuryFramework:
     ██║ ╚████║██║╚██████╔╝██║  ██║   ██║   ██║     ╚██████╔╝██║  ██║   ██║   
     ╚═╝  ╚═══╝╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   
                                                                              
-                         HYPERION - FORMLESS DOMINANCE                       
+                         HYPERION - RUNEHALL EDITION                       
         """
-        print("\033[1;31m" + banner + "\033[0m")
-        print(f"       =[ Nightfury v10.0-HYPERION                     ]")
-        print(f" + -- --=[ {len(self.modules)} elite modules loaded                   ]\n")
+        print("\033[1;35m" + banner + "\033[0m")
+        print(f"       =[ Nightfury v10.1-RUNEHALL                     ]")
+        print(f" + -- --=[ {len(self.modules)} specialized modules loaded             ]\n")
 
     def start_cli(self, args=None):
         self.load_modules()
