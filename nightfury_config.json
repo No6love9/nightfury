@@ -1,0 +1,5 @@
+{
+    "lhost": "use exploit/hyperion_nexus",
+    "lport": "show options",
+    "c2_url": "set mode polymorphic"
+}
