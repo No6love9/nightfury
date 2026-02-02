@@ -22,6 +22,8 @@ nightfury --help
 ### **OSINT & Exploitation Commands**
 
 - **`nightfury osint <domain>`**: Launches a full OSINT reconnaissance scan on the specified domain. This includes Google Dorking, subdomain enumeration, and domain profiling.
+- **`nightfury runehall_osint <username|id>`**: Specialized OSINT for Runehall.com, extracting user stats, rank, and history.
+- **`nightfury runehall_chat`**: Activates real-time chat monitoring for Runehall.com via Pusher integration.
 - **`nightfury dork <domain> [options]`**: Generates targeted Google Dorks for a domain. You can specify categories, output formats, and generate a full report.
 - **`nightfury beef <module>`**: Generates re-engineered BeEF payloads for clandestine web reconnaissance and exploitation.
     - Available modules: `pretty_theft`, `internal_ip`, `port_scanner`, `visited_domains`.

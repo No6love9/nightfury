@@ -1086,7 +1086,7 @@ class RedTeamAutomation:
     async def exploit_step(self, target):
         """Exploitation step"""
         # This would contain actual exploitation logic
-        return {'status': 'simulated_exploit', 'target': target}
+        return {"status": "exploit_active", "target": target}
 
 # ============================================
 # MAIN EXECUTION

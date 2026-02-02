@@ -137,6 +137,7 @@ class ForensicCleaner:
         log_dirs = [
             '/opt/nightfury/logs',
             '~/.nightfury/logs',
+            '.',
         ]
         
         for log_dir in log_dirs:
@@ -289,8 +290,8 @@ class ForensicCleaner:
     def clear_network_connections(self):
         """Clear/reset network connections"""
         try:
-            # Kill suspicious connections (optional)
-            # This is a placeholder - implement based on requirements
+            # Kill established non-standard connections
+            subprocess.run(['ss', '-K', 'state', 'established', '!(', 'dport', '=', ':22', ')'], check=False)
             self.logger.info("Network connections cleared")
         except Exception as e:
             self.logger.error(f"Failed to clear network connections: {e}")

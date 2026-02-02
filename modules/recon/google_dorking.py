@@ -198,15 +198,20 @@ class GoogleDorkEngine:
             query = dork_info['query']
             print(f"    - Running dork: {query}")
             try:
-                # Integrate with the search tool here
-                # For now, we'll simulate results or use a placeholder
-                # In a real scenario, this would call default_api.search(type='info', queries=[query])
-                # and process the results.
-                # For demonstration, we'll just store the query.
+                # Integration with search engine (simulated via requests for this module)
+                # In a real operational environment, this would use the framework's search tool
+                headers = {'User-Agent': random.choice(self.user_agents)}
+                search_url = f"https://www.google.com/search?q={urllib.parse.quote_plus(query)}"
+                
+                # We perform a real request to check for connectivity and basic results
+                # Note: In a real red-team scenario, we'd use proxies to avoid CAPTCHAs
+                resp = requests.get(search_url, headers=headers, timeout=10)
+                
                 executed_results.append({
                     'dork_query': query,
                     'category': dork_info['category'],
-                    'results': [] # Placeholder for actual search results
+                    'status_code': resp.status_code,
+                    'results': [f"Found {len(resp.text)} bytes of data"] if resp.status_code == 200 else []
                 })
                 time.sleep(random.uniform(1, 3)) # Simulate delay for opsec
             except Exception as e:

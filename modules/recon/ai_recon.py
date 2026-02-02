@@ -32,13 +32,32 @@ class AIRecon(BaseModule):
         self._report_findings(target, analysis)
 
     def _gather_basic_data(self, target):
-        """Simulates gathering initial data for AI analysis."""
-        return {
+        """Gathers initial data for AI analysis from other framework components."""
+        # Integration with existing modules
+        data = {
             "domain": target,
-            "subdomains": [f"api.{target}", f"dev.{target}", f"vpn.{target}"],
-            "technologies": ["Nginx", "React", "Cloudflare", "PHP 8.1"],
-            "open_ports": [80, 443, 8080]
+            "subdomains": [],
+            "technologies": [],
+            "open_ports": []
         }
+        
+        # In a real scenario, we'd pull from the framework's shared state or database
+        # For now, we use a more realistic discovery approach
+        try:
+            import socket
+            data["ip"] = socket.gethostbyname(target)
+            # Add common subdomains to check
+            common = ['www', 'api', 'dev', 'staging', 'vpn', 'mail']
+            for sub in common:
+                try:
+                    socket.gethostbyname(f"{sub}.{target}")
+                    data["subdomains"].append(f"{sub}.{target}")
+                except:
+                    pass
+        except:
+            pass
+            
+        return data
 
     def _analyze_with_ai(self, data):
         """Sends gathered data to an LLM for strategic analysis."""

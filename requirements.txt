@@ -1,0 +1,8 @@
+requests
+beautifulsoup4
+pysher
+websocket-client
+pycryptodome
+openai
+pyyaml
+pydantic
