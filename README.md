@@ -1,90 +1,472 @@
-# NightFury Framework v1.2
+# NightFury Framework v2.0
 
-**Professional Red Team Operations Platform**
+**Professional Penetration Testing Platform with Google Gemini AI Integration**
+
+[![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-green)](https://github.com/No6love9/nightfury)
 
 ---
 
 ## Overview
 
-**NightFury** is a comprehensive, clandestine framework for professional red team operations. It provides a full-scope solution for penetration testing, OSINT reconnaissance, web exploitation, and command & control (C2) operations.
+NightFury Framework v2.0 is an advanced, production-ready penetration testing platform designed for professional security assessments. It combines powerful reconnaissance and exploitation capabilities with Google Gemini AI for intelligent analysis and reporting.
 
-The framework has been recently enhanced with a **modular architecture** that allows for dynamic loading of modules, a unified CLI, and better organization of the extensive toolset.
+### Key Features
 
----
-
-## Key Features
-
-- **Modular Architecture**: Easily add new modules to the `modules/` directory.
-- **Dynamic Loading**: Modules are loaded at runtime.
-- **Unified CLI**: A central command-line interface to manage all operations.
-- **Auto-dependency Management**: Automatically installs required Python packages.
-- **Integrated OSINT & Exploitation**: Includes tools for reconnaissance, payload generation, and web exploitation.
-- **WSL2 Integration:** Seamless file and network integration between Kali Linux and Windows host.
-
----
-
-## Directory Structure
-
-- `main.py`: The primary entry point for the framework.
-- `core/`: Core framework logic and base classes.
-- `modules/`: Functional modules organized by category (recon, exploit, c2).
-- `scripts/`: Standalone scripts and legacy tools.
-- `web/`: Web-based tools and interfaces.
-- `data/`: Logs, reports, and configuration files.
-- `backups/`: Original versions of scripts and files.
+- **Advanced Reconnaissance**: Automated scanning, OSINT, and infrastructure analysis
+- **Multi-Vector Exploitation**: Auth bypass, bet manipulation, payment leaks, RNG analysis
+- **Gemini AI Integration**: Free AI-powered analysis, reporting, and threat modeling
+- **Professional GUI Dashboard**: Real-time monitoring and automated data collection
+- **Comprehensive Reporting**: HTML, JSON, and CSV report generation
+- **Quick Commands**: 20+ pre-configured operations for rapid execution
+- **Exploitation Chains**: 6 advanced multi-stage workflows
+- **Framework Enhancements**: 8 major optimizations for maximum performance
+- **Burp Suite Integration**: Custom extension for Runehall testing
 
 ---
 
-## Getting Started
+## Quick Start
 
 ### Prerequisites
 
-- **OS:** Kali Linux (recommended) or other Debian-based distribution
-- **Python:** 3.8+
-- **Permissions:** `sudo` access for installation
+- **Python**: 3.8 or higher
+- **OS**: Linux (Ubuntu/Debian), macOS, or Windows 10+
+- **RAM**: 4GB minimum (8GB recommended)
+- **Internet**: For downloading packages and Gemini AI
 
-### Installation
+### One-Command Installation
 
-1.  **Clone the repository:**
+**Linux/macOS:**
+```bash
+bash setup.sh
+```
 
-    ```bash
-    git clone https://github.com/no6love9/nightfury.git
-    cd nightfury
-    ```
+**Windows:**
+```cmd
+setup.bat
+```
 
-2.  **Run the framework:**
+### Manual Installation
 
-    ```bash
-    python3 main.py
-    ```
+```bash
+# 1. Clone repository
+git clone https://github.com/No6love9/nightfury.git
+cd nightfury
 
-    The framework will automatically install any missing dependencies on the first run.
+# 2. Create virtual environment
+python3 -m venv nightfury_env
+source nightfury_env/bin/activate  # On Windows: nightfury_env\Scripts\activate
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Verify installation
+python3 verify_installation.py
+
+# 5. Start GUI
+python3 nightfury_gui_gemini.py
+```
 
 ---
 
-## Available Modules
+## Setup & Configuration
 
-### Reconnaissance
-- `basic_recon`: Network scanning and port discovery.
-- `osint`: Username and domain OSINT search.
+### Get Gemini API Key (Free)
 
-### Exploitation
-- `payload_gen`: Multi-platform reverse shell generator.
-- `web_exploit`: SQLi and XSS vulnerability testing.
+1. Visit: https://aistudio.google.com/app/apikeys
+2. Click **"Create API Key"**
+3. Copy your key
+4. Set environment variable:
 
-### Command & Control
-- `c2_server`: Simple Flask-based C2 beacon receiver.
+```bash
+export GEMINI_API_KEY='your-api-key-here'
+```
+
+### Directory Structure
+
+```
+nightfury/
+├── setup.sh                          # Linux/macOS setup script
+├── setup.bat                         # Windows setup script
+├── requirements.txt                  # Python dependencies
+├── verify_installation.py            # Installation verification
+├── nightfury_gui_gemini.py          # GUI dashboard with Gemini AI
+├── nightfury_reporting_engine.py    # Report generation & analysis
+├── runehall_quick_commands.py       # Quick command system
+├── runehall_exploitation_chains.py  # Exploitation chains
+├── nightfury_framework_enhancement.py # Framework optimizations
+├── gemini_ai_integration.py         # Gemini AI module
+├── nightfury_pentesting_guide.md    # Pentesting methodology
+├── RUNEHALL_QUICK_REFERENCE.md      # Quick reference guide
+├── GEMINI_SETUP.md                  # Gemini AI setup guide
+├── INSTALLATION_GUIDE.md            # Detailed installation
+├── README.md                        # This file
+└── nightfury_reports/               # Generated reports (auto-created)
+```
 
 ---
 
-## Disclaimer
+## Core Components
 
-NightFury is intended for authorized security testing and educational purposes only. Any unauthorized use of this framework is strictly prohibited. The developers are not responsible for any misuse or damage caused by this tool.
+### 1. GUI Dashboard (`nightfury_gui_gemini.py`)
 
-**Always obtain proper authorization before conducting any security assessments.**
+Professional PyQt5-based interface with:
+- Real-time operation monitoring
+- Automated findings collection
+- Gemini AI analysis integration
+- Professional reporting
+- Statistics dashboard
+
+**Start with:**
+```bash
+python3 nightfury_gui_gemini.py
+```
+
+### 2. Quick Commands (`runehall_quick_commands.py`)
+
+20+ pre-configured operations for rapid execution:
+
+```bash
+# List all commands
+python3 runehall_quick_commands.py list
+
+# Run reconnaissance
+python3 runehall_quick_commands.py recon-full runehall.com
+
+# Run exploitation
+python3 runehall_quick_commands.py exploit-auth runehall.com
+```
+
+**Available Commands:**
+- `recon-full` - Complete reconnaissance suite
+- `recon-quick` - Fast basic scan
+- `recon-users` - User data scraping
+- `exploit-auth` - Authentication bypass
+- `exploit-bet` - Bet manipulation
+- `exploit-payment` - Payment leak testing
+- `exploit-rng` - RNG analysis
+- `chain-osint-exploit` - OSINT to exploitation chain
+- `chain-full-test` - Complete penetration test
+- `batch-users` - Batch user testing
+- `continuous-monitor` - Persistent monitoring
+
+### 3. Exploitation Chains (`runehall_exploitation_chains.py`)
+
+6 advanced multi-stage workflows:
+
+```bash
+# List all chains
+python3 runehall_exploitation_chains.py list
+
+# Execute ELITE_NEXUS chain
+python3 runehall_exploitation_chains.py execute ELITE_NEXUS runehall.com
+```
+
+**Available Chains:**
+- `ELITE_NEXUS` - Complete compromise (all phases)
+- `RAPID_STRIKE` - Fast exploitation
+- `STEALTH_OPERATION` - Low-detection exploitation
+- `GAME_LOGIC_BREACH` - RNG manipulation
+- `FINANCIAL_EXTRACTION` - Payment targeting
+- `CONTINUOUS_HARVEST` - Persistent monitoring
+
+### 4. Reporting Engine (`nightfury_reporting_engine.py`)
+
+Advanced analysis and report generation:
+
+```bash
+python3 nightfury_reporting_engine.py
+```
+
+**Generates:**
+- Executive summaries
+- Detailed analysis reports
+- HTML reports with styling
+- JSON data exports
+- CSV exports for spreadsheets
+
+### 5. Gemini AI Integration (`gemini_ai_integration.py`)
+
+Free AI-powered analysis:
+
+```python
+from gemini_ai_integration import GeminiAIIntegration
+
+gemini = GeminiAIIntegration()
+
+# Analyze findings
+analysis = gemini.analyze_findings(findings)
+
+# Generate summary
+summary = gemini.generate_executive_summary(operation_data)
+
+# Generate remediation
+remediation = gemini.generate_remediation_steps(finding)
+
+# Chat about security
+response = gemini.chat("What are OWASP Top 10?")
+```
+
+---
+
+## Performance Modes
+
+Configure framework behavior with performance modes:
+
+| Mode | Speed | Stealth | Accuracy | Best For |
+|------|-------|---------|----------|----------|
+| **Ultra Performance** | ⭐⭐⭐⭐⭐ | ⭐ | ⭐⭐ | Lab testing |
+| **Balanced** | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | General testing |
+| **Stealth** | ⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐ | Avoiding detection |
+| **Precision** | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Accurate results |
+
+---
+
+## Framework Enhancements
+
+8 major optimizations included:
+
+1. **Parallel Execution** - 8 concurrent modules
+2. **Intelligent Caching** - 1GB cache with compression
+3. **Adaptive Throttling** - Dynamic request rates
+4. **Distributed Scanning** - 4-node load balancing
+5. **ML-Based Anomaly Detection** - Ensemble model
+6. **Advanced Evasion** - JIT, polymorphism, obfuscation
+7. **Real-Time Correlation** - 5-second updates
+8. **Automatic Exploitation** - Confidence-based triggering
+
+---
+
+## Gemini AI Capabilities
+
+### Free Tier Limits
+
+- **Requests per minute**: 60
+- **Requests per day**: 1,500
+- **Characters per request**: 30,000
+
+### Available Functions
+
+| Function | Purpose |
+|----------|---------|
+| `analyze_findings()` | Comprehensive vulnerability assessment |
+| `generate_executive_summary()` | Professional C-level reports |
+| `generate_remediation_steps()` | Step-by-step fix procedures |
+| `analyze_attack_surface()` | Attack vector identification |
+| `generate_threat_model()` | Threat model generation |
+| `generate_compliance_report()` | OWASP/CIS/PCI-DSS compliance |
+| `analyze_log_file()` | Security event detection |
+| `chat()` | Interactive security chat |
+
+---
+
+## Usage Examples
+
+### Example 1: Quick Reconnaissance
+
+```bash
+python3 runehall_quick_commands.py recon-full runehall.com
+```
+
+### Example 2: Run GUI Dashboard
+
+```bash
+python3 nightfury_gui_gemini.py
+```
+
+Then:
+1. Enter operation name and target
+2. Select operation type
+3. Check "Enable Gemini AI Analysis"
+4. Click "Start Operation"
+5. View findings and AI analysis
+
+### Example 3: Generate Report
+
+```bash
+python3 nightfury_reporting_engine.py
+```
+
+Reports saved to `nightfury_reports/` directory
+
+### Example 4: Custom Python Script
+
+```python
+from gemini_ai_integration import GeminiAIIntegration
+
+# Initialize
+gemini = GeminiAIIntegration()
+
+# Your findings
+findings = [
+    {"severity": "high", "title": "SQL Injection", "description": "..."},
+    {"severity": "medium", "title": "Weak Encryption", "description": "..."}
+]
+
+# Get AI analysis
+analysis = gemini.analyze_findings(findings)
+print(analysis)
+
+# Save analysis
+gemini.save_analysis("findings", analysis)
+```
+
+---
+
+## Documentation
+
+| Document | Purpose |
+|----------|---------|
+| `README.md` | Overview and quick start |
+| `INSTALLATION_GUIDE.md` | Detailed installation instructions |
+| `GEMINI_SETUP.md` | Gemini AI setup and usage |
+| `RUNEHALL_QUICK_REFERENCE.md` | Quick command reference |
+| `nightfury_pentesting_guide.md` | Pentesting methodology |
+| `burp_integration_quickstart.md` | Burp Suite integration |
+
+---
+
+## System Requirements
+
+### Minimum
+
+- Python 3.8+
+- 4GB RAM
+- 2GB disk space
+- Linux, macOS, or Windows 10+
+
+### Recommended
+
+- Python 3.11+
+- 16GB RAM
+- 10GB disk space
+- Ubuntu 22.04 LTS or macOS 12+
+
+---
+
+## Troubleshooting
+
+### Python Not Found
+
+```bash
+# Install Python 3
+sudo apt-get install python3 python3-pip  # Ubuntu/Debian
+brew install python3                      # macOS
+```
+
+### PyQt5 Installation Error
+
+```bash
+pip install --only-binary :all: PyQt5
+```
+
+### Gemini API Key Error
+
+```bash
+# Verify environment variable
+echo $GEMINI_API_KEY
+
+# Set if needed
+export GEMINI_API_KEY='your-key'
+```
+
+### Permission Denied
+
+```bash
+# Make scripts executable
+chmod +x setup.sh
+chmod +x *.py
+```
+
+---
+
+## Security & Ethics
+
+**Important Disclaimer:**
+
+This framework is designed for **authorized security testing only**. Unauthorized access to computer systems is illegal. Always ensure you have explicit written permission before conducting any penetration testing activities.
+
+### Best Practices
+
+- Only test systems you own or have permission to test
+- Keep API keys secure and never commit to version control
+- Use VPN/proxy for operational security
+- Document all testing activities
+- Follow responsible disclosure practices
+- Comply with all applicable laws and regulations
+
+---
+
+## Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
 ---
 
 ## License
 
-This project is licensed under the **MIT License**.
+This project is licensed under the MIT License - see LICENSE file for details.
+
+---
+
+## Support & Resources
+
+- **GitHub**: https://github.com/No6love9/nightfury
+- **Gemini AI**: https://ai.google.dev/
+- **Google AI Studio**: https://aistudio.google.com/app/apikeys
+- **OWASP**: https://owasp.org/
+- **CIS Benchmarks**: https://www.cisecurity.org/
+
+---
+
+## Version History
+
+### v2.0 (Current)
+- Google Gemini AI integration
+- Enhanced GUI dashboard
+- Comprehensive reporting engine
+- Quick commands system
+- Exploitation chains
+- Framework enhancements
+- All-in-one setup scripts
+
+### v1.0
+- Initial framework release
+- Basic reconnaissance modules
+- Exploitation capabilities
+- CLI interface
+
+---
+
+## Acknowledgments
+
+- Google Generative AI team for Gemini API
+- Open-source security community
+- All contributors and testers
+
+---
+
+## Contact & Feedback
+
+For issues, suggestions, or feedback:
+- Open an issue on GitHub
+- Submit a pull request
+- Contact the development team
+
+---
+
+**NightFury Framework v2.0 - Professional Penetration Testing Platform**
+
+*For authorized security testing only. Use responsibly.*
+
+---
+
+**Last Updated**: February 3, 2026
+**Status**: Production Ready
+**Maintainer**: No6love9
