@@ -97,6 +97,26 @@ class RunehallQuickCommands:
                 ],
                 "config": {}
             },
+            "exploit-race": {
+                "description": "Race condition exploitation",
+                "modules": ["exploit/runehall_race_conditions"],
+                "config": {"thread_count": "50"}
+            },
+            "exploit-graphql": {
+                "description": "GraphQL API exploitation",
+                "modules": ["exploit/runehall_graphql"],
+                "config": {"attack_type": "introspection"}
+            },
+            "exploit-session": {
+                "description": "Session intelligence and hijacking",
+                "modules": ["exploit/runehall_session_intel"],
+                "config": {"analysis_mode": "predictive"}
+            },
+            "exfil-advanced": {
+                "description": "Advanced data exfiltration",
+                "modules": ["exploit/runehall_exfil_advanced"],
+                "config": {"exfil_method": "dns"}
+            },
             
             # ADVANCED COMMANDS
             "chain-osint-exploit": {
