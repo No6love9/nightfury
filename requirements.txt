@@ -24,9 +24,9 @@ websocket-client>=1.6.0
 pyzmq>=25.1.0
 
 # Proxy & Anonymization
-pysocks>=1.7.1
+PySocks>=1.7.1
 stem>=1.8.2
-requests-socks>=0.7.1
+requests[socks]>=2.31.0
 proxy-requests>=0.7.0
 
 # ============================================================================
