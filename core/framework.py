@@ -191,21 +191,35 @@ class NightfuryFramework:
         import argparse
         parser = argparse.ArgumentParser(description='Nightfury Batch Mode')
         parser.add_argument('--target', help='Target for the operation')
-        parser.add_argument('--module', default='recon/basic_recon', help='Module to run (default: recon/basic_recon)')
+        parser.add_argument('--module', help='Module to run')
         
         parsed_args, unknown = parser.parse_known_args(args)
         
+        if not parsed_args.module:
+            print("[-] Batch mode requires --module")
+            return
+
         if parsed_args.module in self.modules:
             module = self.modules[parsed_args.module]
+            
+            # Map target to various common option names
             if parsed_args.target:
-                # Set target in options if it exists
-                if 'target' in module.options:
-                    module.options['target'] = parsed_args.target
-                
-                print(f"[*] Automated Execution: {parsed_args.module} -> {parsed_args.target}")
-                module.run([parsed_args.target])
-            else:
-                print("[-] Batch mode requires --target")
+                for key in ['target', 'target_url', 'domain']:
+                    if key in module.options:
+                        module.options[key] = parsed_args.target
+            
+            # Process unknown arguments as module options (e.g., --username admin)
+            for i in range(0, len(unknown), 2):
+                if i + 1 < len(unknown):
+                    key = unknown[i].lstrip('-')
+                    val = unknown[i+1]
+                    if key in module.options:
+                        module.options[key] = val
+                        print(f"[*] Option Set: {key} => {val}")
+
+            print(f"[*] Automated Execution: {parsed_args.module}")
+            # Pass target as the first argument to run() for compatibility
+            module.run([parsed_args.target] if parsed_args.target else [])
         else:
             print(f"[-] Module {parsed_args.module} not found.")
 
