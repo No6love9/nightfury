@@ -70,11 +70,11 @@ install_dependencies() {
 
     # Python requirements
     print_info "Installing Python dependencies (Aggressive Mode)..."
-    pip install --upgrade -q pip setuptools wheel
-    pip install -q -r requirements.txt
+    sudo pip install --upgrade -q pip setuptools wheel
+    sudo pip install -q -r requirements.txt
     
     # Force install critical AI modules
-    pip install -q google-generativeai scikit-learn pandas numpy
+    sudo pip install -q google-generativeai scikit-learn pandas numpy
     
     print_success "Dependency injection complete"
 }
