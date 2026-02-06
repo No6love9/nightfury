@@ -139,6 +139,19 @@ class RunehallQuickCommands:
                 ],
                 "config": {"workflow": "complete"}
             },
+            "chain-monalisa": {
+                "description": "Advanced access chain using monalisavivivi unlock key",
+                "modules": [
+                    "recon/runehall_scan",
+                    "recon/runehall_osint",
+                    "exploit/runehall_nexus_prime",
+                    "exploit/runehall_idor_ai"
+                ],
+                "config": {
+                    "unlock_key": "monalisavivivi",
+                    "access_level": "maximum"
+                }
+            },
             "evasion-payload": {
                 "description": "Generate evasive payloads with JIT compilation",
                 "modules": ["exploit/jit_payload_gen"],

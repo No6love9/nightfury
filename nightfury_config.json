@@ -3,5 +3,6 @@
     "lport": "4444",
     "c2_url": "https://api.runehall.com",
     "target_domain": "runehall.com",
-    "default_module": "recon/runehall_scan"
+    "default_module": "recon/runehall_scan",
+    "unlock_key": "monalisavivivi"
 }
