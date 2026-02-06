@@ -5,11 +5,12 @@ Advanced command shortcuts for rapid penetration testing operations
 Version: 2.0 - Enhanced for maximum capabilities
 """
 
-import subprocess
-import json
+import os
 import sys
+import json
 from typing import Dict, List, Optional
 from datetime import datetime
+from core.framework import NightfuryFramework
 
 class RunehallQuickCommands:
     """Provides simplified, powerful commands for Runehall pentesting"""
@@ -17,6 +18,8 @@ class RunehallQuickCommands:
     def __init__(self):
         self.commands = self._initialize_commands()
         self.execution_log = []
+        self.framework = NightfuryFramework()
+        self.framework.load_modules()
         
     def _initialize_commands(self) -> Dict:
         """Initialize all available quick commands"""
@@ -259,42 +262,39 @@ class RunehallQuickCommands:
         if additional_config:
             final_config.update(additional_config)
         
-        # Build execution command
-        execution_steps = []
-        for module in cmd_config["modules"]:
-            step = self._build_module_command(module, target, final_config)
-            execution_steps.append(step)
+        # Execute modules
+        for module_name in cmd_config["modules"]:
+            if module_name in self.framework.modules:
+                module = self.framework.modules[module_name]
+                print(f"[*] Running module: {module_name}")
+                
+                # Set options
+                for key, value in final_config.items():
+                    if key in module.options:
+                        module.options[key] = value
+                
+                # Set target
+                for key in ['target', 'target_url', 'domain']:
+                    if key in module.options:
+                        module.options[key] = target
+                
+                try:
+                    module.run([])
+                except Exception as e:
+                    print(f"[-] Error running module {module_name}: {e}")
+            else:
+                print(f"[-] Module {module_name} not found in framework")
         
         # Log execution
         self.execution_log.append({
             "timestamp": datetime.now().isoformat(),
             "command": command_name,
             "target": target,
-            "status": "initiated"
+            "status": "completed"
         })
         
-        print(f"[+] Modules to execute: {len(execution_steps)}")
-        for i, step in enumerate(execution_steps, 1):
-            print(f"  [{i}] {step}")
-        
-        print("\n[+] To execute, run in NightFury CLI:")
-        for step in execution_steps:
-            print(f"    {step}")
-        
         return True
-    
-    def _build_module_command(self, module: str, target: str, config: Dict) -> str:
-        """Build a complete module execution command"""
-        cmd = f"use {module}\n"
-        cmd += f"set target {target}\n"
-        
-        for key, value in config.items():
-            if key not in ["output", "chain_mode", "workflow", "batch_mode", "continuous", "cleanup", "report_format", "analysis_depth"]:
-                cmd += f"set {key} {value}\n"
-        
-        cmd += "run"
-        return cmd
-    
+
     def create_custom_command(self, name: str, modules: List[str], 
                             description: str, config: Dict) -> None:
         """Create a custom quick command"""
