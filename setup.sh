@@ -481,3 +481,19 @@ main() {
 
 # Run main function
 main
+
+################################################################################
+# Final Instructions
+################################################################################
+
+echo -e "\n${GREEN}================================================================${NC}"
+echo -e "${GREEN}       NIGHTFURY FRAMEWORK v3.0-GOLD INSTALLATION COMPLETE       ${NC}"
+echo -e "${GREEN}================================================================${NC}"
+echo -e "\n${BLUE}To start the Professional Suite:${NC}"
+echo -e "  source $VENV_NAME/bin/activate"
+echo -e "  python3 nightfury_pro.py --cli"
+echo -e "\n${BLUE}For aggressive testing:${NC}"
+echo -e "  python3 nightfury_pro.py --target <domain>"
+echo -e "\n${BLUE}For GUI Dashboard:${NC}"
+echo -e "  python3 nightfury_pro.py --gui"
+echo -e "\n${GREEN}Happy Hunting!${NC}\n"
