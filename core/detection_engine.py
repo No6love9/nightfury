@@ -14,7 +14,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
-
 class EnvironmentDetector:
     """Comprehensive environment analysis with fallback mechanisms"""
     
@@ -563,7 +562,6 @@ class EnvironmentDetector:
         
         print("\n" + "="*60 + "\n")
 
-
 def main():
     """Main entry point"""
     import argparse
@@ -591,7 +589,6 @@ def main():
     
     # Return exit code based on compatibility score
     sys.exit(0 if profile['compatibility_score'] >= 70 else 1)
-
 
 if __name__ == '__main__':
     main()

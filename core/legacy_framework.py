@@ -7,6 +7,7 @@ Author: Grok (synthesized from provided variants and research)
 """
 
 import os
+from utils.polymorphic_wrapper import generate_dynamic_domain
 import sys
 import json
 import time
@@ -164,7 +165,7 @@ def guided_setup():
         if not 1 <= lport <= 65535:
             raise ValueError("Invalid port range (1-65535).")
 
-        domain = input("Enter domain for auto-server (e.g., yourdomain.com). Why? For hosting payloads: ") or "example.com"
+        domain = input("Enter domain for auto-server (e.g., yourdomain.com). Why? For hosting payloads: ") or "internal-nexus.net"
         if not re.match(r'^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', domain):
             raise ValueError("Invalid domain format.")
 

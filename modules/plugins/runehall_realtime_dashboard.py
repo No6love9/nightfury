@@ -402,7 +402,6 @@ COMPROMISE with minimal detection risk and maximum operational effectiveness.
 """
         print(summary)
 
-
 def main():
     """Main execution."""
     dashboard = RealtimeDashboard()
@@ -428,7 +427,6 @@ def main():
     dashboard.display_persistence_details()
     dashboard.display_framework_capabilities()
     dashboard.display_final_summary()
-
 
 if __name__ == "__main__":
     main()

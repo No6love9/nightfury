@@ -3,7 +3,10 @@ import json
 import os
 import socket
 from core.base_module import BaseModule
+from utils.polymorphic_wrapper import PolymorphicWrapper
 
+@PolymorphicWrapper.wrap_module
+@PolymorphicWrapper.wrap_module
 class AIRecon(BaseModule):
     """
     AI-Driven Reconnaissance Module.

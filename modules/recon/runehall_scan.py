@@ -1,4 +1,5 @@
 from core.base_module import BaseModule
+from utils.polymorphic_wrapper import PolymorphicWrapper
 import requests
 import json
 import time
@@ -6,6 +7,8 @@ import socket
 from .runehall_osint import RunehallOSINT
 from .dir_brute import DirBrute
 
+@PolymorphicWrapper.wrap_module
+@PolymorphicWrapper.wrap_module
 class RunehallScan(BaseModule):
     """
     Advanced Runehall Infrastructure Scanner.

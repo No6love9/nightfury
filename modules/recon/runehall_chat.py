@@ -1,4 +1,5 @@
 from core.base_module import BaseModule
+from utils.polymorphic_wrapper import PolymorphicWrapper
 import pysher
 import json
 import time
@@ -8,6 +9,8 @@ import sys
 # Disable pysher logging to keep output clean
 logging.getLogger('pysher').setLevel(logging.ERROR)
 
+@PolymorphicWrapper.wrap_module
+@PolymorphicWrapper.wrap_module
 class RunehallChat(BaseModule):
     def __init__(self, framework):
         super().__init__(framework)

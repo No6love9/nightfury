@@ -210,7 +210,6 @@ class InstallationVerifier:
         print("\n[*] System dependencies (Windows):")
         print("    Install Visual C++ Build Tools from Microsoft")
 
-
 def main():
     """Main entry point"""
     verifier = InstallationVerifier()
@@ -247,7 +246,6 @@ def main():
         print("   python runehall_exploitation_chains.py list")
     
     print("\n" + "="*80 + "\n")
-
 
 if __name__ == "__main__":
     main()

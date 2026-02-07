@@ -543,7 +543,6 @@ Overall Risk Score: {analysis.get('risk_score', 0)}/100
         
         return str(filepath)
 
-
 def main():
     """Main entry point"""
     engine = ReportingEngine()
@@ -574,7 +573,6 @@ def main():
     print(f"[+] JSON export saved: {json_export}")
     
     print("\n" + "="*80 + "\n")
-
 
 if __name__ == "__main__":
     main()

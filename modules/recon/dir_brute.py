@@ -2,7 +2,10 @@ import requests
 import concurrent.futures
 import os
 from core.base_module import BaseModule
+from utils.polymorphic_wrapper import PolymorphicWrapper
 
+@PolymorphicWrapper.wrap_module
+@PolymorphicWrapper.wrap_module
 class DirBrute(BaseModule):
     """
     Automated Directory Brute-forcing for Reconnaissance.

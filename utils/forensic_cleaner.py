@@ -13,7 +13,6 @@ from pathlib import Path
 from typing import List, Optional
 import logging
 
-
 class ForensicCleaner:
     """Anti-forensics and artifact removal"""
     
@@ -320,7 +319,6 @@ class ForensicCleaner:
         except Exception as e:
             self.logger.error(f"Failed to create incident report: {e}")
 
-
 def main():
     """CLI interface"""
     import argparse
@@ -370,7 +368,6 @@ def main():
                     print(f"    - {item}")
     
     print(f"\n[*] Log file: {cleaner.log_file}")
-
 
 if __name__ == '__main__':
     main()

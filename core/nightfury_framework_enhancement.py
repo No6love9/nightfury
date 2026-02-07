@@ -357,7 +357,6 @@ class NightFuryEnhancement:
         print("[+] Configuration applied successfully")
         return True
 
-
 def main():
     """Main entry point for framework enhancement"""
     enhancement = NightFuryEnhancement()
@@ -387,7 +386,6 @@ def main():
         enhancement.export_config(mode=mode)
     else:
         enhancement.list_optimizations()
-
 
 if __name__ == "__main__":
     main()

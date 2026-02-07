@@ -4,8 +4,11 @@ import random
 import time
 import threading
 from core.base_module import BaseModule
+from utils.polymorphic_wrapper import PolymorphicWrapper
 from modules.exploit.advanced_evasion import AdvancedEvasionEngine
 
+@PolymorphicWrapper.wrap_module
+@PolymorphicWrapper.wrap_module
 class RunehallPro(BaseModule):
     """
     Professional NightFury Plugin for runehall.com.

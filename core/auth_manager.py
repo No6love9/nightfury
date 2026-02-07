@@ -15,7 +15,6 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import yaml
 
-
 class SHEBAAuthManager:
     """SHEBA (Secure Hierarchical Entry & Boundary Authentication) Manager"""
     
@@ -378,7 +377,6 @@ class SHEBAAuthManager:
         
         with open(output_file, 'w') as f:
             json.dump(audit_data, f, indent=2)
-
 
 def main():
     """CLI interface for authentication manager"""

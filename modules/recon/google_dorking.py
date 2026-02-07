@@ -9,7 +9,10 @@ from datetime import datetime
 from typing import List, Dict, Optional, Any
 from pathlib import Path
 from core.base_module import BaseModule
+from utils.polymorphic_wrapper import PolymorphicWrapper
 
+@PolymorphicWrapper.wrap_module
+@PolymorphicWrapper.wrap_module
 class GoogleDorkEngine(BaseModule):
     """Advanced Google Dorking with OPSEC-aware queries and execution capabilities"""
     

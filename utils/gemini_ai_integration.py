@@ -18,7 +18,6 @@ except ImportError:
     GEMINI_AVAILABLE = False
     print("[!] google-generativeai not installed. Install with: pip install google-generativeai")
 
-
 class GeminiAIIntegration:
     """Integrates Google Gemini AI with NightFury framework"""
     
@@ -370,7 +369,6 @@ Provide:
         
         return str(filepath)
 
-
 class GeminiAIReportGenerator:
     """Generates reports using Gemini AI"""
     
@@ -422,7 +420,6 @@ EXECUTIVE SUMMARY
         
         return report
 
-
 def main():
     """Main entry point"""
     
@@ -456,7 +453,6 @@ def main():
         
     except Exception as e:
         print(f"[!] Error: {e}")
-
 
 if __name__ == "__main__":
     main()

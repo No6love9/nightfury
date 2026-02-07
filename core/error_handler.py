@@ -14,7 +14,6 @@ from typing import Dict, List, Optional, Callable, Any
 from enum import Enum
 from pathlib import Path
 
-
 class ErrorCategory(Enum):
     """Error categories for classification"""
     NETWORK = "network"
@@ -25,7 +24,6 @@ class ErrorCategory(Enum):
     MODULE = "module"
     UNKNOWN = "unknown"
 
-
 class RecoveryStrategy(Enum):
     """Recovery strategies"""
     RETRY = "retry"
@@ -35,7 +33,6 @@ class RecoveryStrategy(Enum):
     SANITIZE_EVACUATE = "sanitize_evacuate"
     IGNORE = "ignore"
     ABORT = "abort"
-
 
 class NightFuryErrorHandler:
     """Global exception management with recovery capabilities"""
@@ -527,10 +524,8 @@ class NightFuryErrorHandler:
         except Exception:
             return []
 
-
 # Global error handler instance
 _global_error_handler: Optional[NightFuryErrorHandler] = None
-
 
 def get_error_handler() -> NightFuryErrorHandler:
     """Get global error handler instance"""
@@ -538,7 +533,6 @@ def get_error_handler() -> NightFuryErrorHandler:
     if _global_error_handler is None:
         _global_error_handler = NightFuryErrorHandler()
     return _global_error_handler
-
 
 def handle_exception(
     exception: Exception,
@@ -548,7 +542,6 @@ def handle_exception(
     """Convenience function to handle exceptions"""
     handler = get_error_handler()
     return handler.handle_exception(exception, context, allow_recovery)
-
 
 def main():
     """Test error handler"""
@@ -571,7 +564,6 @@ def main():
     # Print statistics
     print("\nError Statistics:")
     print(json.dumps(handler.get_error_statistics(), indent=2))
-
 
 if __name__ == '__main__':
     main()

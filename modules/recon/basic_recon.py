@@ -1,6 +1,9 @@
 from core.base_module import BaseModule
+from utils.polymorphic_wrapper import PolymorphicWrapper
 import socket
 
+@PolymorphicWrapper.wrap_module
+@PolymorphicWrapper.wrap_module
 class BasicRecon(BaseModule):
     def __init__(self, framework):
         super().__init__(framework)

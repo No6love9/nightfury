@@ -1,10 +1,13 @@
 from core.base_module import BaseModule
+from utils.polymorphic_wrapper import PolymorphicWrapper
 import requests
 import re
 from bs4 import BeautifulSoup
 import json
 import time
 
+@PolymorphicWrapper.wrap_module
+@PolymorphicWrapper.wrap_module
 class RunehallOSINT(BaseModule):
     def __init__(self, framework):
         super().__init__(framework)

@@ -1,7 +1,10 @@
 from core.base_module import BaseModule
+from utils.polymorphic_wrapper import PolymorphicWrapper
 import requests
 import random
 
+@PolymorphicWrapper.wrap_module
+@PolymorphicWrapper.wrap_module
 class ProxyOrchestrator(BaseModule):
     """
     Custom Proxy Orchestration for Clandestine Operations.

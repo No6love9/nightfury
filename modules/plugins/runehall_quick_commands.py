@@ -315,7 +315,6 @@ class RunehallQuickCommands:
         """Get detailed information about a specific command"""
         return self.commands.get(command_name)
 
-
 def main():
     """Main entry point for quick commands CLI"""
     qc = RunehallQuickCommands()
@@ -344,7 +343,6 @@ def main():
     else:
         target = sys.argv[2] if len(sys.argv) > 2 else "runehall.com"
         qc.execute_command(action, target)
-
 
 if __name__ == "__main__":
     main()

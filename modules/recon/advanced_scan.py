@@ -1,8 +1,11 @@
 from core.base_module import BaseModule
+from utils.polymorphic_wrapper import PolymorphicWrapper
 import subprocess
 import socket
 import os
 
+@PolymorphicWrapper.wrap_module
+@PolymorphicWrapper.wrap_module
 class AdvancedScan(BaseModule):
     def __init__(self, framework):
         super().__init__(framework)

@@ -33,7 +33,6 @@ try:
 except ImportError:
     GEMINI_AVAILABLE = False
 
-
 class DataCollector:
     """Collects and manages operation data"""
     
@@ -104,7 +103,6 @@ class DataCollector:
             json.dump(self.current_operation, f, indent=2)
         
         return str(filepath)
-
 
 class NightFuryGeminiGUI(QMainWindow):
     """Main GUI application with Gemini AI integration"""
@@ -726,7 +724,6 @@ class NightFuryGeminiGUI(QMainWindow):
         """
         self.setStyleSheet(stylesheet)
 
-
 def main():
     """Main entry point"""
     if not PYQT_AVAILABLE:
@@ -738,7 +735,6 @@ def main():
     window = NightFuryGeminiGUI()
     window.show()
     sys.exit(app.exec_())
-
 
 if __name__ == "__main__":
     main()

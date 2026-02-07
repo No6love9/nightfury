@@ -655,7 +655,6 @@ Report Generated: {datetime.now().isoformat()}
 """
         return report
 
-
 async def main():
     """Main execution."""
     console = RunehallAggressiveConsole()
@@ -681,7 +680,6 @@ async def main():
         
     except Exception as e:
         logger.error(f"Main execution error: {e}")
-
 
 if __name__ == "__main__":
     asyncio.run(main())

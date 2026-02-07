@@ -1,8 +1,11 @@
 from core.base_module import BaseModule
+from utils.polymorphic_wrapper import PolymorphicWrapper
 import requests
 import json
 import concurrent.futures
 
+@PolymorphicWrapper.wrap_module
+@PolymorphicWrapper.wrap_module
 class OSINT(BaseModule):
     def __init__(self, framework):
         super().__init__(framework)
